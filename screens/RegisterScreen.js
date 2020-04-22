@@ -1,7 +1,9 @@
 import React from 'react';
-import { View, Text, StyleSheet, Button } from 'react-native';
+import { View, Text, StyleSheet, Button, TouchableOpacity } from 'react-native';
 
 import Register from '../components/Register';
+
+import {Colors} from '../colors/Colors';
 
 const RegisterScreen = ({ navigation }) => {
     return (
@@ -11,10 +13,9 @@ const RegisterScreen = ({ navigation }) => {
                 <Register />
             </View>
             <View style={styles.backToLoginButton}>
-                <Button
-                    title="Back to Log In"
-                    onPress={() => navigation.navigate('Login')}
-                />
+            <TouchableOpacity style={styles.backToLogin} onPress={() => navigation.navigate('Login')}>
+                    <Text style={styles.backToLoginText}> Back to Log In</Text>
+                </TouchableOpacity>
             </View>
         </View>
     )
@@ -36,8 +37,19 @@ const styles = StyleSheet.create({
         fontSize: 22
     },
     backToLoginButton: {
-        flex: 2,
-        width: '80%'
+        width: '100%',
+    },
+    backToLogin: {
+        backgroundColor: Colors.primary,
+        height: 60,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: 10,
+        paddingBottom: 10
+    },
+    backToLoginText: {
+        color: '#fff',
+        fontWeight: '700'
     }
 })
 export default RegisterScreen;

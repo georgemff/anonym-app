@@ -1,9 +1,13 @@
 import React, { useState, useContext } from 'react';
-import { View, TextInput, Button, Text, StyleSheet } from 'react-native';
+import { View, TextInput, Button, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import * as Permissions from 'expo-permissions';
 import * as Location from 'expo-location';
 
+import { users } from '../firebaseInit';
+
 import { Context } from '../Authcontext';
+
+import { Colors } from '../colors/Colors';
 
 const Register = () => {
     const [username, setUsername] = useState('');
@@ -12,17 +16,39 @@ const Register = () => {
     const [confirmPassword, setConfirmPassword] = useState('');
     const { signUp } = useContext(Context);
     const [errMessage, setErrMessage] = useState(undefined);
+    const [disabledButton, setDisabledButton] = useState(false);
 
     const checkPasswords = async () => {
-
-        if (password == confirmPassword) {
+        setDisabledButton(true);
+        if (errMessage != undefined) {
+            setErrMessage(undefined);
+        }
+        if (!(await userNameAvailable())) {
+            setErrMessage('Username Already Taken!');
+            setDisabledButton(false);
+            return;
+        }
+        if (password == confirmPassword && password != '') {
             const location = await getLocation();
-            signUp({ username, email, location, password, confirmPassword });
+            const status = await signUp({ username, email, location, password, confirmPassword });
+            setErrMessage(status.message)
         } else {
             setErrMessage('Passwords Do Not Match')
         }
+        setDisabledButton(false);
 
     }
+
+    const userNameAvailable = async () => {
+        const result = await users
+            .where('userName', '==', username)
+            .get();
+
+        return result.empty;
+
+    }
+
+
 
     const getLocation = async () => {
         const { status } = await Permissions.askAsync(Permissions.LOCATION);
@@ -36,7 +62,6 @@ const Register = () => {
                 }
                 let city = await Location.reverseGeocodeAsync(latLog);
                 if (city) {
-                    console.log(city);
                     return city[0].city
                 } else {
                     setErrMessage('Can Not Get City')
@@ -93,7 +118,16 @@ const Register = () => {
                     secureTextEntry
                 />
             </View>
-            <Button title="Register" onPress={() => (checkPasswords())} />
+            <TouchableOpacity style={styles.registerInButtonContainer} onPress={() => (checkPasswords())} disabled={disabledButton}>
+                {
+                    disabledButton == true ?
+                        <Text style={styles.registerText}>Loading ...</Text>
+                        :
+                        <Text style={styles.registerText}>Register</Text>
+
+                }
+            </TouchableOpacity>
+            {/* <Button title="Register" onPress={() => (checkPasswords())} /> */}
         </View>
     );
 }
@@ -104,7 +138,8 @@ const styles = StyleSheet.create({
     },
     errorMessageText: {
         color: 'red',
-        textAlign: 'center'
+        textAlign: 'center',
+        fontSize: 12
     },
     inputContainer: {
         marginBottom: 10,
@@ -113,6 +148,17 @@ const styles = StyleSheet.create({
     },
     input: {
         padding: 5
+    },
+    registerInButtonContainer: {
+        backgroundColor: Colors.primary,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingVertical: 12,
+        borderRadius: 2
+    },
+    registerText: {
+        color: '#fff',
+        fontWeight: '700'
     }
 })
 

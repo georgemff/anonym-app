@@ -1,7 +1,8 @@
 import React from 'react';
-import { View, Text, Button, StyleSheet } from 'react-native';
+import { View, Text, Button, StyleSheet, TouchableOpacity } from 'react-native';
 
 import SignIn from '../components/SignIn';
+import {Colors} from '../colors/Colors';
 
 const LoginSreen = ({ navigation }) => {
     return (
@@ -11,10 +12,10 @@ const LoginSreen = ({ navigation }) => {
                 <SignIn />
             </View>
             <View style={styles.registerButtonContainer}>
-                <Button
-                    title="Register"
-                    onPress={() => navigation.navigate('Register')}
-                />
+                <TouchableOpacity style={styles.registerButton} onPress={() => navigation.navigate('Register')}>
+                    <Text style={styles.registerText}>Register Now >>></Text>
+                </TouchableOpacity>
+            
             </View>
         </View>
     )
@@ -36,8 +37,19 @@ const styles = StyleSheet.create({
         fontSize: 22
     },
     registerButtonContainer: {
-        flex: 2,
-        width: '80%'
+        width: '100%',
+    },
+    registerButton: {
+        backgroundColor: Colors.primary,
+        height: 60,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: 10,
+        paddingBottom: 10
+    },
+    registerText: {
+        color: '#fff',
+        fontWeight: '700'
     }
 })
 

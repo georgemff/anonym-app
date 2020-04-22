@@ -26,7 +26,6 @@ const ProfileScreen = ({ navigation }) => {
   const getUserInfo = async () => {
     try {
       const uuid = await AsyncStorage.getItem('uuid');
-      console.log(uuid, 'uuid')
       const userSnapshot = await users.where('userId', '==', uuid).get()
       let userData = {};
       userSnapshot.forEach((doc) => {
@@ -77,8 +76,6 @@ const ProfileScreen = ({ navigation }) => {
           storageRef.child('avatars/' + uuid).put(blob, metadata)
             .then(async (snapshot) => {
               const downloadUrl = await snapshot.ref.getDownloadURL()
-              console.log('userId', auth.currentUser.uid)
-              console.log(uuid)
               users.where('userId', '==', uuid).get()
                 .then(querySnapshot => {
                   querySnapshot.forEach(doc => {

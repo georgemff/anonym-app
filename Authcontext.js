@@ -16,8 +16,7 @@ const AuthContext = () => {
     const authContext = useMemo(() => (
         {
             signIn: async data => {
-                console.log(data)
-                auth.signInWithEmailAndPassword(data.username, data.password)
+                return auth.signInWithEmailAndPassword(data.username, data.password)
                     .then(async (r) => {
                         try {
                             const token = await auth.currentUser.getIdToken();
@@ -31,7 +30,7 @@ const AuthContext = () => {
                         }
                     })
                     .catch(e => {
-                        console.log(e);
+                        return e;
                     })
             },
             signOut: async () => {
@@ -44,24 +43,23 @@ const AuthContext = () => {
             },
 
             signUp: async data => {
-                auth.createUserWithEmailAndPassword(data.email, data.password)
+                return auth.createUserWithEmailAndPassword(data.email, data.password)
                     .then(async (r) => {
-                        try {
                             const user = auth.currentUser;
                             await users.add({
                                 userId: user.uid,
                                 photoURL: user.photoURL,
-                                userName: data.username
+                                userName: data.username,
+                                location: data.location
                             });
                             const token = await user.getIdToken();
                             await AsyncStorage.setItem('accessToken', token);
                             const uuid = auth.currentUser.uid;
                             await AsyncStorage.setItem('uuid', uuid);
                             updateStatusState();
-                        }
-                        catch (e) {
-                            console.log(e)
-                        }
+                    })
+                    .catch(e => {
+                        return e;
                     })
             }
         }
