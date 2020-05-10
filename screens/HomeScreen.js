@@ -112,7 +112,7 @@ const HomeScreen = ({ navigation }) => {
                 data={postData}
                 renderItem={({ item }) => (
                     <TouchableOpacity onPress={() => { getPostDetails(item) }} activeOpacity={0.8} onLongPress={() => { showModal(item.userId) }}>
-                        <Card photoURL={item.photoURL} author={item.userName} content={item.content} date={item.createdAt} />
+                        <Card photoURL={item.photoURL ? item.photoURL : 'NoPhoto'} author={item.userName} content={item.content} date={item.createdAt} />
                     </TouchableOpacity>
                 )}
                 keyExtractor={item => item.postId}

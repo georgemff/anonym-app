@@ -84,13 +84,13 @@ const PostDetails = ({ route, navigation }) => {
     return (
         <View style={styles.screen}>
             <View style={styles.commentsSection}>
-                <Card photoURL={post.photoURL} style={styles.postCard} author={post.userName} content={post.content} date={post.createdAt} />
+                <Card photoURL={post.photoURL ? post.photoURL : 'NoPhoto'} style={styles.postCard} author={post.userName} content={post.content} date={post.createdAt} />
                 {commentsData.length == 0 && !refresh ? <NoData text={'No Comments Yet'} /> :
                     <FlatList
                         refreshing={refresh}
                         data={commentsData}
                         renderItem={({ item }) => (
-                            <Card photoURL={item.photoURL} authorStyle={styles.commentAuthorStyle} author={item.userName} content={item.comment} date={item.createdAt} />
+                            <Card photoURL={item.photoURL ? item.photoURL : ''} authorStyle={styles.commentAuthorStyle} author={item.userName} content={item.comment} date={item.createdAt} />
                         )}
                         keyExtractor={item => item.commentId}
                         refreshing={refresh}
@@ -100,7 +100,7 @@ const PostDetails = ({ route, navigation }) => {
             </View>
             <View style={styles.addCommentContainer}>
                 <View style={styles.inputContainer}>
-                    <TextInput style={styles.commetInput} value={comment} onChangeText={setComment} placeholder="Write a comment..." multiline={true} />
+                    <TextInput style={styles.commetInput} value={comment} onChangeText={setComment} placeholder="Write a comment..." placeholderTextColor={Colors.textPrimary} multiline={true} />
                 </View>
                 <View style={styles.addButtonContainer}>
                     <TouchableHighlight

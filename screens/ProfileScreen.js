@@ -11,6 +11,7 @@ import Card from '../components/Card'
 
 import { uriToBlob } from '../helpers/Helpers';
 import AddPostButton from '../components/AddPostButton';
+import LogOutButton from '../components/LogOutButton';
 import NoData from '../components/NoData';
 import {Colors} from '../colors/Colors';
 
@@ -142,7 +143,7 @@ const ProfileScreen = ({ navigation }) => {
     <View style={styles.screen}>
       <View style={styles.profilePictureContainer}>
         <TouchableOpacity onPress={() => { _pickImage() }}>
-          <Image source={{ uri: userInfo.photoURL }} style={{ height: 100, width: 100, borderRadius: 50, borderColor: '#fff', borderWidth: 2, backgroundColor: 'rgba(0,0,0,.1)' }} />
+          <Image source={{ uri: userInfo.photoURL ? userInfo.photoURL : 'NoPhoto' }} style={{ height: 100, width: 100, borderRadius: 50, borderColor: '#fff', borderWidth: 2, backgroundColor: 'rgba(0,0,0,.1)' }} />
         </TouchableOpacity>
         <Text style={styles.userName}>
           {userInfo.userName}
@@ -150,14 +151,14 @@ const ProfileScreen = ({ navigation }) => {
       </View>
       <View>
       </View>
-      <TouchableOpacity style={styles.logOutButton} onPress={() => (signOut())}><Text style={styles.logOutButtonText}>Log Out</Text></TouchableOpacity>
+      {/* <TouchableOpacity style={styles.logOutButton} onPress={() => (signOut())}><Text style={styles.logOutButtonText}>Log Out</Text></TouchableOpacity> */}
       <View style={{ flex: 1 }}>
         {userPosts.length == 0 && !refresh ? <NoData text={'No Posts Yet'} /> :
           <FlatList
             data={userPosts}
             renderItem={({ item }) => (
               <TouchableOpacity onPress={() => { getPostDetails(item) }} activeOpacity={0.8}>
-                <Card photoURL={item.photoURL} author={item.userName} content={item.content} date={item.createdAt} />
+                <Card photoURL={item.photoURL ? item.photoURL : 'NoPhoto'} author={item.userName} content={item.content} date={item.createdAt} />
               </TouchableOpacity>
             )}
             keyExtractor={item => item.postId}
@@ -165,7 +166,8 @@ const ProfileScreen = ({ navigation }) => {
             onRefresh={refreshHandler}
           />
         }
-        <AddPostButton event={addPostNavigationHandler} />
+        <AddPostButton style={{right: '5%'}} event={addPostNavigationHandler} />
+        <LogOutButton style={{right: '80%'}} event={signOut}/>
 
       </View>
 
@@ -183,8 +185,8 @@ const styles = StyleSheet.create({
     fontSize: 22
   },
   profilePictureContainer: {
-    paddingTop: 60,
-    paddingBottom: 25,
+    paddingTop: '10%',
+    paddingBottom: '5%',
     alignItems: 'center'
   },
   userName: {

@@ -3,12 +3,12 @@ import {TouchableOpacity, StyleSheet} from 'react-native';
 import {Icon} from 'react-native-elements';
 import {Colors} from '../colors/Colors';
 
-const AddPostButton = props => {
+const LogOutButton = props => {
 
     return (
         <TouchableOpacity onPress={() => { props.event() }}
         style={{...styles.addPostButton, ...props.style}}>
-        <Icon name="add" color="#fff" size={30} />
+        <Icon name="reply" color="#fff" size={30} />
     </TouchableOpacity>
     )
 }
@@ -28,4 +28,4 @@ const styles = StyleSheet.create({
     }
 })
 
-export default AddPostButton;
+export default LogOutButton;

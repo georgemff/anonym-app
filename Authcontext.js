@@ -23,9 +23,13 @@ const AuthContext = () => {
                     .then(async (r) => {
                         try {
                             const token = await auth.currentUser.getIdToken();
-                            await AsyncStorage.setItem('accessToken', token);
+                            if(token){
+                                await AsyncStorage.setItem('accessToken', token);
+                            }
                             const uuid = auth.currentUser.uid;
-                            await AsyncStorage.setItem('uuid', uuid);
+                            if(uuid) {
+                                await AsyncStorage.setItem('uuid', uuid);
+                            }
                             let notificationPermission = await Permissions.getAsync(Permissions.NOTIFICATIONS);
                             if (notificationPermission != 'granted') {
                                 notificationPermission = await Permissions.askAsync(Permissions.NOTIFICATIONS);
@@ -76,9 +80,14 @@ const AuthContext = () => {
                             location: data.location
                         });
                         const token = await user.getIdToken();
-                        await AsyncStorage.setItem('accessToken', token);
+                        if(token) {
+                            await AsyncStorage.setItem('accessToken', token);
+                        }
+
                         const uuid = auth.currentUser.uid;
-                        await AsyncStorage.setItem('uuid', uuid);
+                        if(uuid) {
+                            await AsyncStorage.setItem('uuid', uuid);
+                        }                        
 
                         updateStatusState();
                     })

@@ -33,10 +33,12 @@ const TextArea = props => {
                 autoFocus={true}
                 multiline={true}
                 numberOfLines={4}
+                minHeight={(Platform.OS === 'ios') ? (20 * 4) : null}
                 value={post}
                 onChangeText={setPost}
                 textAlignVertical="top"
-                placeholder="Type Something..." />
+                placeholder="Type Something..."
+                placeholderTextColor={Colors.textPrimary} />
             <TouchableOpacity style={styles.addPostButton} onPress={addPostHandler}>
                 <Text style={styles.postButtonText}>Add Post</Text>
             </TouchableOpacity>
@@ -57,9 +59,8 @@ const styles = StyleSheet.create({
     },
     textInput: {
         padding: 5,
-        paddingTop: 0,
         backgroundColor: Colors.primary,
-        color: Colors.textPrimary
+        color: 'white'
     },
     addPostButton: {
         height: 40,
