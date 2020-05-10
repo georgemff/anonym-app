@@ -1,6 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
 
+import {Colors} from '../colors/Colors'
+
 const Card = props => {
     return (
         <View style={{ ...styles.card, ...props.style }}>
@@ -14,7 +16,7 @@ const Card = props => {
                     <Text style={styles.date}>{props.date}</Text>
                 </View>
                 <View style={styles.contentContainer}>
-                    <Text>{props.content}</Text>
+                    <Text style={styles.postContent}>{props.content}</Text>
                 </View>
             </View>
         </View>
@@ -28,31 +30,38 @@ const styles = StyleSheet.create({
         alignItems: 'flex-start',
         flexDirection: 'row',
         marginVertical: 5,
-        marginHorizontal: 3,
+        marginHorizontal: 0,
         shadowColor: 'black',
         shadowOffset: { width: 2, height: 2 },
         shadowRadius: 1,
         shadowOpacity: 0.10,
-        backgroundColor: 'white',
+        backgroundColor: Colors.primary,
         elevation: 1,
-        borderRadius: 3
+        borderRadius: 3,
     },
     author: {
         fontSize: 18,
-        fontWeight: '700'
+        fontWeight: '700',
+        color: Colors.textPrimary
     },
     date: {
         fontSize: 10,
-        color: 'rgba(0,0,0,.3)'
+        color: 'rgba(0,0,0,.3)',
+        color: Colors.date
 
     },
     contentContainer: {
-        paddingVertical: 7
+        paddingVertical: 7,
+        color: Colors.textPrimary
+
+    },
+    postContent: {
+        color: Colors.textPrimary
     },
     authorImage: {
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#fff',
+        backgroundColor: 'transparent',
         paddingTop: 7
     },
     image: {

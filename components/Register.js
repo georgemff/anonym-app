@@ -2,7 +2,6 @@ import React, { useState, useContext } from 'react';
 import { View, TextInput, Button, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import * as Permissions from 'expo-permissions';
 import * as Location from 'expo-location';
-
 import { users } from '../firebaseInit';
 
 import { Context } from '../Authcontext';
@@ -31,6 +30,8 @@ const Register = () => {
         if (password == confirmPassword && password != '') {
             const location = await getLocation();
             const status = await signUp({ username, email, location, password, confirmPassword });
+
+           
             setErrMessage(status.message)
         } else {
             setErrMessage('Passwords Do Not Match')

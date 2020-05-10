@@ -5,9 +5,7 @@ import {Colors} from '../colors/Colors';
 
 
 import FeedNavigation from '../navigation/FeedNavigation';
-import ProfileScreen from '../screens/ProfileScreen';
 import ProfileNavigation from './ProfileNavigation';
-import DrawerNavigation from './DrawerNavigation';
 
 const BottomTab = createBottomTabNavigator();
 
@@ -15,9 +13,13 @@ const BottomTab = createBottomTabNavigator();
 export default function LoginNavigation() {
     return (
         <BottomTab.Navigator tabBarOptions={{
-            activeTintColor: Colors.primary,
-            inactiveTintColor: '#cccccc',
-            allowFontScaling: true
+            activeTintColor: Colors.activeTab,
+            inactiveTintColor: Colors.inActiveTab,
+            allowFontScaling: true,
+            style: {
+                backgroundColor: Colors.primary,
+                borderTopColor: Colors.borderColor
+            }
         }}>
             <BottomTab.Screen name="Home" component={FeedNavigation}
                 options={{

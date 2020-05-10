@@ -1,6 +1,6 @@
 import React from 'react'
 import {View, Text, StyleSheet} from 'react-native';
-
+import {Colors} from '../colors/Colors';
 const NoData = props => {
     return (
         <View style={styles.NoDataScreen}>
@@ -18,7 +18,9 @@ const styles = StyleSheet.create({
     Text: {
         fontSize: 22,
         color: 'rgba(0,0,0,0.1)',
-        fontWeight: '900'
+        fontWeight: '900',
+        color: Colors.textPrimary,
+        opacity: 0.2
     }
 })
 

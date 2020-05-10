@@ -20,15 +20,16 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.primary,
         alignItems: 'flex-start',
         justifyContent: 'flex-start',
-        flexDirection: 'row'
-    },
+        flexDirection: 'row',
+        },
     headerTitle: {
-        color: 'white',
         fontSize: 32,
-        fontWeight: 'bold'
+        fontWeight: 'bold',
+        color: Colors.textPrimary
     },
     p: {
         marginLeft: -5,
+        color: Colors.textPrimary
     }
 });
 

@@ -1,15 +1,18 @@
 import React, { useState, createContext, useMemo } from 'react';
-import { AsyncStorage, Alert, View, Text, StyleSheet } from 'react-native';
+import { AsyncStorage, View, Text, StyleSheet } from 'react-native';
 import Header from './components/Header';
 import LoginNavigation from './navigation/LoginNavigation';
 import HomeNavigation from './navigation/HomeNavigation';
+import * as Permissions from 'expo-permissions';
+import { Notifications } from 'expo';
 
-import { auth, users } from './firebaseInit'
+import { auth, users, notificationTokens } from './firebaseInit'
 export const Context = createContext();
 
 const AuthContext = () => {
     const [signedIn, setSignedIn] = useState(false);
     const [isLoading, setisLoading] = useState(true);
+    const [senderId, setSenderId] = useState('779623741394');
     React.useEffect(() => {
         updateStatusState();
     }, []);
@@ -23,6 +26,15 @@ const AuthContext = () => {
                             await AsyncStorage.setItem('accessToken', token);
                             const uuid = auth.currentUser.uid;
                             await AsyncStorage.setItem('uuid', uuid);
+                            let notificationPermission = await Permissions.getAsync(Permissions.NOTIFICATIONS);
+                            if (notificationPermission != 'granted') {
+                                notificationPermission = await Permissions.askAsync(Permissions.NOTIFICATIONS);
+                            }
+                            let deviceToken;
+                            if (notificationPermission.granted) {
+                                deviceToken = await Notifications.getDevicePushTokenAsync({gcmSenderId: senderId});
+                                saveDeviceToken(deviceToken);
+                            }
                             updateStatusState();
                         }
                         catch (e) {
@@ -36,6 +48,17 @@ const AuthContext = () => {
             signOut: async () => {
                 auth.signOut()
                     .then(async (r) => {
+                        const snapShot = await notificationTokens.where('userId', '==', await AsyncStorage.getItem('uuid')).get();
+                        if (!snapShot.empty) {
+                            snapShot.forEach(doc => {
+                                notificationTokens.doc(doc.id)
+                                    .delete()
+                                    .then()
+                                    .catch(e => {
+                                        console.log(e);
+                                    })
+                            })
+                        }
                         await AsyncStorage.removeItem('accessToken');
                         await AsyncStorage.removeItem('uuid');
                         updateStatusState();
@@ -45,18 +68,19 @@ const AuthContext = () => {
             signUp: async data => {
                 return auth.createUserWithEmailAndPassword(data.email, data.password)
                     .then(async (r) => {
-                            const user = auth.currentUser;
-                            await users.add({
-                                userId: user.uid,
-                                photoURL: user.photoURL,
-                                userName: data.username,
-                                location: data.location
-                            });
-                            const token = await user.getIdToken();
-                            await AsyncStorage.setItem('accessToken', token);
-                            const uuid = auth.currentUser.uid;
-                            await AsyncStorage.setItem('uuid', uuid);
-                            updateStatusState();
+                        const user = auth.currentUser;
+                        await users.add({
+                            userId: user.uid,
+                            photoURL: user.photoURL,
+                            userName: data.username,
+                            location: data.location
+                        });
+                        const token = await user.getIdToken();
+                        await AsyncStorage.setItem('accessToken', token);
+                        const uuid = auth.currentUser.uid;
+                        await AsyncStorage.setItem('uuid', uuid);
+
+                        updateStatusState();
                     })
                     .catch(e => {
                         return e;
@@ -78,11 +102,40 @@ const AuthContext = () => {
         setisLoading(false);
     }
 
+    const saveDeviceToken = async (token) => {
+        try {
+            const uuid = await AsyncStorage.getItem('uuid');
+            const notificationTokensDocRef = notificationTokens.where('userId', '==', uuid);
+            notificationTokensDocRef
+                .get()
+                .then(async (snapShot) => {
+                    if (snapShot.empty) {
+                        notificationTokens.add({
+                            userId: await AsyncStorage.getItem('uuid'),
+                            type: token.type,
+                            notificationToken: token.data
+                        })
+                    } else {
+                        snapShot.forEach(doc => {
+                            const notToken = doc.data().notificationToken;
+                            if (notToken !== token) {
+                                notificationTokens.doc(doc.id).update({
+                                    notificationToken: token
+                                })
+                            }
+                        })
+                    }
+                })
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
     return (
         <Context.Provider value={authContext}>
             {
                 isLoading === true ? <View style={styles.loading}><Text style={styles.text}>Loading...</Text></View>
-                    : signedIn === true ? <View style={{ flex: 1 }}>
+                    : signedIn === true ? <View style={{ flex: 1, backgroundColor: '#030303' }}>
                         <Header title={'title'} />
                         <HomeNavigation />
                     </View>
@@ -96,10 +149,13 @@ const styles = StyleSheet.create({
     loading: {
         flex: 1,
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        backgroundColor: '#1A1A1B'
     },
     text: {
-        fontSize: 24
+        fontSize: 24,
+        color: '#D7DADC'
+
     }
 })
 

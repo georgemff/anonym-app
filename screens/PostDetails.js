@@ -3,7 +3,7 @@ import { View, StyleSheet, FlatList, TextInput, AsyncStorage, TouchableHighlight
 
 import Card from '../components/Card';
 import { comments } from '../firebaseInit';
-
+import {Colors} from '../colors/Colors';
 import { formatDate, updateAuthorUserName } from '../helpers/Helpers'
 import NoData from '../components/NoData';
 
@@ -48,8 +48,8 @@ const PostDetails = ({ route, navigation }) => {
             queryData.push(comment);
         });
 
-        queryData = await updateAuthorUserName(queryData);
-        setcommentsData(queryData);
+        const updatedQueryData = await updateAuthorUserName(queryData);
+        setcommentsData(updatedQueryData.data);
         setRefresh(false)
 
 
@@ -71,8 +71,8 @@ const PostDetails = ({ route, navigation }) => {
                     comment.createdAt = formatDate(comment.createdAt)
                     queryData.push(comment);
                 });
-                queryData = await updateAuthorUserName(queryData);
-                setcommentsData(queryData);
+                const updatedQueryData = await updateAuthorUserName(queryData);
+                setcommentsData(updatedQueryData.data);
             });
 
         return () => {
@@ -104,7 +104,7 @@ const PostDetails = ({ route, navigation }) => {
                 </View>
                 <View style={styles.addButtonContainer}>
                     <TouchableHighlight
-                        style={{ ...styles.addCommentButton, backgroundColor: "#2196F3" }}
+                        style={{ ...styles.addCommentButton, backgroundColor: Colors.buttomPrimary }}
                         activeOpacity={1}
                         onPress={addCommentHandler}
                     >
@@ -120,6 +120,7 @@ const styles = StyleSheet.create({
     screen: {
         flex: 1,
         justifyContent: 'space-between',
+        backgroundColor: Colors.backgroundPrimary
     },
     postCard: {
         elevation: 0,
@@ -136,7 +137,9 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         borderBottomWidth: 1,
         borderBottomColor: 'rgba(0,0,0,0.1)',
-        marginBottom: 3
+        marginBottom: 3,
+        backgroundColor: Colors.backgroundPrimary
+
     },
     commentAuthorStyle: {
         fontSize: 16
@@ -145,9 +148,11 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        backgroundColor: '#fff',
-        marginHorizontal: 3,
-        borderRadius: 3
+        // marginHorizontal: 3,
+        borderTopWidth: 1,
+        borderTopColor: Colors.borderColor,
+        borderRadius: 3,
+        backgroundColor: 'transparent'
 
     },
     inputContainer: {
@@ -158,25 +163,31 @@ const styles = StyleSheet.create({
     },
     commetInput: {
         paddingVertical: 10,
-        paddingHorizontal: 5
+        paddingHorizontal: 5,
+        backgroundColor: Colors.backgroundPrimary,
+        color: Colors.textPrimary
+
+
     },
     addButtonContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        height: '100%'
+        height: '101%',
+        // marginTop: -1
     },
     addCommentButton: {
-        backgroundColor: "#F194FF",
+        backgroundColor: Colors.buttomPrimary,
         borderTopRightRadius: 3,
         borderBottomRightRadius: 3,
         paddingHorizontal: 10,
         paddingVertical: 15,
         elevation: 2,
-        height: '100%'
+        height: '100%',
+        marginTop: -1
     },
     textStyle: {
-        color: "white",
+        color: Colors.textPrimary,
         fontWeight: "bold",
         textAlign: "center"
     },

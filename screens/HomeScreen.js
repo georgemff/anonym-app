@@ -45,8 +45,8 @@ const HomeScreen = ({ navigation }) => {
             queryData.push(post);
 
         });
-        queryData = await updateAuthorUserName(queryData);
-        setPostData(queryData);
+        const updatedQueryData = await updateAuthorUserName(queryData);
+        setPostData(updatedQueryData.data);
         setRefresh(false);
     }
 
@@ -129,7 +129,8 @@ const styles = StyleSheet.create({
     screen: {
         flex: 1,
         paddingTop: 0,
-        position: 'relative'
+        position: 'relative',
+        backgroundColor: Colors.backgroundPrimary
 
     },
     wecolme: {

@@ -1,30 +1,31 @@
 import React, { useState } from 'react';
-import { View, TextInput, StyleSheet, Button, AsyncStorage } from 'react-native';
-import {posts, users} from '../firebaseInit';
+import { View, TextInput, StyleSheet, Button, AsyncStorage, TouchableOpacity, Text } from 'react-native';
+import { posts, users } from '../firebaseInit';
+import {Colors} from '../colors/Colors';
 const TextArea = props => {
     const [post, setPost] = useState('');
 
     const addPostHandler = async () => {
-        if(post == '') {
+        if (post == '') {
             return;
         }
         const uuid = await AsyncStorage.getItem('uuid');
-        if(!uuid) {
+        if (!uuid) {
             return;
         }
         posts
-        .add({
-            content: post,
-            userId: uuid,
-            createdAt: new Date().getTime()
-        })
-        .then(r => {
-            setPost('');
-            props.onPostAdd();
-        })
-        .catch(e => {
-            console.log(e)
-        })
+            .add({
+                content: post,
+                userId: uuid,
+                createdAt: new Date().getTime()
+            })
+            .then(r => {
+                setPost('');
+                props.onPostAdd();
+            })
+            .catch(e => {
+                console.log(e)
+            })
     }
     return (
         <View style={styles.textInputContainer}>
@@ -36,14 +37,16 @@ const TextArea = props => {
                 onChangeText={setPost}
                 textAlignVertical="top"
                 placeholder="Type Something..." />
-            <Button title="Add Post" onPress={addPostHandler} />
+            <TouchableOpacity style={styles.addPostButton} onPress={addPostHandler}>
+                <Text style={styles.postButtonText}>Add Post</Text>
+            </TouchableOpacity>
         </View>
     )
 }
 
 const styles = StyleSheet.create({
     textInputContainer: {
-        margin: 3,
+        marginTop: 5,
         shadowColor: 'black',
         shadowOffset: { width: 2, height: 2 },
         shadowRadius: 1,
@@ -55,7 +58,18 @@ const styles = StyleSheet.create({
     textInput: {
         padding: 5,
         paddingTop: 0,
-
+        backgroundColor: Colors.primary,
+        color: Colors.textPrimary
+    },
+    addPostButton: {
+        height: 40,
+        backgroundColor: Colors.buttomPrimary,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    postButtonText: {
+        color: Colors.textPrimary,
+        fontWeight: '700'
     }
 })
 

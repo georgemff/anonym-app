@@ -12,8 +12,7 @@ import Card from '../components/Card'
 import { uriToBlob } from '../helpers/Helpers';
 import AddPostButton from '../components/AddPostButton';
 import NoData from '../components/NoData';
-
-import {DrawerActions} from '@react-navigation/native'
+import {Colors} from '../colors/Colors';
 
 
 const ProfileScreen = ({ navigation }) => {
@@ -117,8 +116,8 @@ const ProfileScreen = ({ navigation }) => {
         post.postId = doc.id;
         queryData.push(post);
       })
-      queryData = await updateAuthorUserName(queryData);
-      setUserPosts(queryData);
+      const updatedQueryData = await updateAuthorUserName(queryData);
+      setUserPosts(updatedQueryData.data);
       setRefresh(false)
     }
     catch (e) {
@@ -151,7 +150,7 @@ const ProfileScreen = ({ navigation }) => {
       </View>
       <View>
       </View>
-      <Button title="LogOut" onPress={() => (signOut())} />
+      <TouchableOpacity style={styles.logOutButton} onPress={() => (signOut())}><Text style={styles.logOutButtonText}>Log Out</Text></TouchableOpacity>
       <View style={{ flex: 1 }}>
         {userPosts.length == 0 && !refresh ? <NoData text={'No Posts Yet'} /> :
           <FlatList
@@ -176,7 +175,9 @@ const ProfileScreen = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   screen: {
-    flex: 1
+    flex: 1,
+    backgroundColor: Colors.backgroundPrimary
+
   },
   wecolme: {
     fontSize: 22
@@ -190,6 +191,17 @@ const styles = StyleSheet.create({
     fontSize: 22,
     paddingTop: 12,
     letterSpacing: 0.5,
+    fontWeight: '700',
+    color: Colors.textPrimary
+  },
+  logOutButton: {
+    height: 40,
+    backgroundColor: Colors.buttomPrimary,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  logOutButtonText: {
+    color: Colors.textPrimary,
     fontWeight: '700'
   }
 })

@@ -22,11 +22,14 @@
       "**/*"
     ],
     "ios": {
+      "bundleIdentifier": "com.anonymComp.anonymapp",
+      "buildNumber": "1.0.0",
       "supportsTablet": true
     },
     "android": {
       "package": "com.anonymComp.anonymapp"
-    }
+    },
+    "sdkVersion": "37.0.0"
   }
 }
 
