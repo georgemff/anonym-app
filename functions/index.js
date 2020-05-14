@@ -69,3 +69,17 @@ exports.sendPushNotification = functions.firestore.document('comments/{commentId
         console.log('Send Push Notification', response);
         return response;
     })
+
+exports.deletePostsAfterOneDay = functions.pubsub.schedule('5 11 * * *')
+    .timeZone('Georgia/Tbilisi')
+    .onRun((context) => {
+        const now = Date.now();
+        const cutoff = now - 24 * 60 * 60 * 1000;
+        const oldPostsRef = admin.firestore().collection('posts').orderBy('createdAt').endAt(cutoff).get();
+
+        oldPostsRef.then((snapShot) => {
+            snapShot.forEach(doc => {
+                doc.ref.delete();
+            })
+        })
+    });

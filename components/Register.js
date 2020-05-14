@@ -1,9 +1,7 @@
 import React, { useState, useContext } from 'react';
-import { View, TextInput, Button, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import * as Permissions from 'expo-permissions';
-import * as Location from 'expo-location';
+import { View, TextInput, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { users } from '../firebaseInit';
-
+import {getLocation} from '../helpers/Helpers';
 import { Context } from '../Authcontext';
 
 import { Colors } from '../colors/Colors';
@@ -29,9 +27,11 @@ const Register = () => {
         }
         if (password == confirmPassword && password != '') {
             const location = await getLocation();
-            const status = await signUp({ username, email, location, password, confirmPassword });
+            if(typeof location !== 'object') {
+                setErrMessage(location);
+            }
+            const status = await signUp({ username, email, city: location?.city, region: location?.region, password, confirmPassword });
 
-           
             setErrMessage(status.message)
         } else {
             setErrMessage('Passwords Do Not Match')
@@ -46,37 +46,6 @@ const Register = () => {
             .get();
 
         return result.empty;
-
-    }
-
-
-
-    const getLocation = async () => {
-        const { status } = await Permissions.askAsync(Permissions.LOCATION);
-        if (status == 'granted') {
-            let location = await Location.getCurrentPositionAsync({});
-            if (location) {
-                let { latitude, longitude } = location.coords;
-                const latLog = {
-                    latitude,
-                    longitude
-                }
-                let city = await Location.reverseGeocodeAsync(latLog);
-                if (city) {
-                    return city[0].city
-                } else {
-                    setErrMessage('Can Not Get City')
-                }
-
-
-            } else {
-                setErrMessage('Can Not Get Location')
-            }
-
-        } else {
-            setErrMessage('Location NOT Granted')
-        }
-        return '';
 
     }
 
@@ -128,7 +97,6 @@ const Register = () => {
 
                 }
             </TouchableOpacity>
-            {/* <Button title="Register" onPress={() => (checkPasswords())} /> */}
         </View>
     );
 }

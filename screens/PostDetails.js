@@ -3,7 +3,7 @@ import { View, StyleSheet, FlatList, TextInput, AsyncStorage, TouchableHighlight
 
 import Card from '../components/Card';
 import { comments } from '../firebaseInit';
-import {Colors} from '../colors/Colors';
+import { Colors } from '../colors/Colors';
 import { formatDate, updateAuthorUserName } from '../helpers/Helpers'
 import NoData from '../components/NoData';
 
@@ -33,24 +33,31 @@ const PostDetails = ({ route, navigation }) => {
     }
 
     const getComments = async () => {
-        setRefresh(true);
-        const postComments = comments.where("postId", "==", post.postId).get();
-        if ((await postComments).empty) {
-            setRefresh(false);
-            return;
-        }
-        const postQuery = await postComments;
-        let queryData = []
-        postQuery.forEach(function (doc) {
-            let comment = doc.data();
-            comment.commentId = doc.id;
-            comment.createdAt = formatDate(comment.createdAt)
-            queryData.push(comment);
-        });
+        try {
+            setRefresh(true);
+            const postComments = comments
+                .where("postId", "==", post.postId)
+                .orderBy("createdAt", "asc")
+                .get();
+            if ((await postComments).empty) {
+                setRefresh(false);
+                return;
+            }
+            const postQuery = await postComments;
+            let queryData = []
+            postQuery.forEach(function (doc) {
+                let comment = doc.data();
+                comment.commentId = doc.id;
+                comment.createdAt = formatDate(comment.createdAt)
+                queryData.push(comment);
+            });
 
-        const updatedQueryData = await updateAuthorUserName(queryData);
-        setcommentsData(updatedQueryData.data);
-        setRefresh(false)
+            const updatedQueryData = await updateAuthorUserName(queryData);
+            setcommentsData(updatedQueryData.data);
+            setRefresh(false)
+        } catch (e) {
+            console.log(e)
+        }
 
 
     }
@@ -63,6 +70,7 @@ const PostDetails = ({ route, navigation }) => {
         getComments();
         const unsubscribe = comments
             .where("postId", "==", post.postId)
+            .orderBy('createdAt', "asc")
             .onSnapshot(async (querySnapshot) => {
                 let queryData = [];
                 querySnapshot.forEach(function (doc) {
@@ -85,18 +93,18 @@ const PostDetails = ({ route, navigation }) => {
         <View style={styles.screen}>
             <View style={styles.commentsSection}>
                 <Card photoURL={post.photoURL ? post.photoURL : 'NoPhoto'} style={styles.postCard} author={post.userName} content={post.content} date={post.createdAt} />
-                {commentsData.length == 0 && !refresh ? <NoData text={'No Comments Yet'} /> :
                     <FlatList
                         refreshing={refresh}
                         data={commentsData}
                         renderItem={({ item }) => (
-                            <Card photoURL={item.photoURL ? item.photoURL : ''} authorStyle={styles.commentAuthorStyle} author={item.userName} content={item.comment} date={item.createdAt} />
+                            <Card photoURL={item.photoURL ? item.photoURL : 'NoPhoto'} authorStyle={styles.commentAuthorStyle} author={item.userName} content={item.comment} date={item.createdAt} />
                         )}
                         keyExtractor={item => item.commentId}
                         refreshing={refresh}
                         onRefresh={refreshHandler}
+                        ListEmptyComponent={() => (<NoData text={'No Comments Yet'} />)}
+                        contentContainerStyle={commentsData?.length === 0 && styles.emptyList}
                     />
-                }
             </View>
             <View style={styles.addCommentContainer}>
                 <View style={styles.inputContainer}>
@@ -121,6 +129,12 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'space-between',
         backgroundColor: Colors.backgroundPrimary
+    },
+
+    emptyList: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center'
     },
     postCard: {
         elevation: 0,

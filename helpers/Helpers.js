@@ -1,4 +1,6 @@
-import { getUserName } from '../firebaseInit'
+import { getUserName } from '../firebaseInit';
+import * as Permissions from 'expo-permissions';
+import * as Location from 'expo-location';
 
 export const formatDate = (millisecs) => {
   let date = new Date(millisecs)
@@ -44,8 +46,31 @@ export const updateAuthorUserName = async (queryPosts) => {
   } catch (e) {
     console.log(e);
   }
-
-
-
   return updatedQuery;
+}
+
+export const getLocation = async () => {
+  const { status } = await Permissions.askAsync(Permissions.LOCATION);
+  if (status == 'granted') {
+    let location = await Location.getCurrentPositionAsync({});
+    if (location) {
+      let { latitude, longitude } = location.coords;
+      const latLog = {
+        latitude,
+        longitude
+      }
+      let city = await Location.reverseGeocodeAsync(latLog);
+      
+      if (city) {
+        return { 'city': city[0].city, 'region': city[0].region }
+      } else {
+        return 'Can Not Get City';
+      }
+    } else {
+      return 'Can Not Get Location';
+    }
+  }
+
+  return 'Location NOT Granted';
+
 }

@@ -1,11 +1,11 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { View, Text, Button, Image, StyleSheet, AsyncStorage, TouchableOpacity, FlatList } from 'react-native';
+import { View, Text, Image, StyleSheet, Button, AsyncStorage, TouchableOpacity, FlatList } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import Constants from 'expo-constants';
 import * as Permissions from 'expo-permissions';
 import { Context } from '../Authcontext'
 import { formatDate, updateAuthorUserName } from '../helpers/Helpers'
-import { storageRef, auth, users, posts } from '../firebaseInit';
+import { storageRef, users, posts } from '../firebaseInit';
 
 import Card from '../components/Card'
 
@@ -21,6 +21,7 @@ const ProfileScreen = ({ navigation }) => {
   const [userInfo, setUserInfo] = useState({});
   const [userPosts, setUserPosts] = useState([]);
   const [refresh, setRefresh] = useState(false);
+  const [drawer, setDrawer] = useState(true)
 
 
   const getUserInfo = async () => {
@@ -31,7 +32,6 @@ const ProfileScreen = ({ navigation }) => {
       userSnapshot.forEach((doc) => {
         userData = doc.data();
       });
-
       setUserInfo(userData);
     }
     catch (e) {
@@ -40,7 +40,7 @@ const ProfileScreen = ({ navigation }) => {
   }
 
   const refreshHandler = () => {
-    getUserComments();
+    getUsetPosts();
   }
 
 
@@ -84,7 +84,7 @@ const ProfileScreen = ({ navigation }) => {
                     })
                       .then(r => {
                         getUserInfo();
-                        getUserComments();
+                        getUsetPosts();
                       })
                       .catch(e => {
                         console.log(e)
@@ -102,12 +102,12 @@ const ProfileScreen = ({ navigation }) => {
     }
   };
 
-  const getUserComments = async () => {
+  const getUsetPosts = async () => {
     setRefresh(true)
     const uuid = await AsyncStorage.getItem('uuid');
 
     try {
-      const queryPosts = await posts.where('userId', '==', uuid)
+      const queryPosts = await posts.where('userId', '==', uuid).orderBy('createdAt', 'desc')
         .get();
 
       let queryData = [];
@@ -130,13 +130,17 @@ const ProfileScreen = ({ navigation }) => {
   }
 
   const addPostNavigationHandler = () => {
-    navigation.navigate('AddPost', { postAdd: getUserComments })
+    navigation.navigate('AddPost', { postAdd: getUsetPosts })
   }
 
 
   useEffect(() => {
     getUserInfo();
-    getUserComments();
+    getUsetPosts();
+
+    return () => {
+      
+    }
   }, [])
 
   return (
@@ -151,9 +155,7 @@ const ProfileScreen = ({ navigation }) => {
       </View>
       <View>
       </View>
-      {/* <TouchableOpacity style={styles.logOutButton} onPress={() => (signOut())}><Text style={styles.logOutButtonText}>Log Out</Text></TouchableOpacity> */}
       <View style={{ flex: 1 }}>
-        {userPosts.length == 0 && !refresh ? <NoData text={'No Posts Yet'} /> :
           <FlatList
             data={userPosts}
             renderItem={({ item }) => (
@@ -164,10 +166,11 @@ const ProfileScreen = ({ navigation }) => {
             keyExtractor={item => item.postId}
             refreshing={refresh}
             onRefresh={refreshHandler}
+            contentContainerStyle={userPosts?.length === 0 && styles.emptyList}
+            ListEmptyComponent={() => (<NoData text={'No Posts Yet'} />)}
           />
-        }
         <AddPostButton style={{right: '5%'}} event={addPostNavigationHandler} />
-        <LogOutButton style={{right: '80%'}} event={signOut}/>
+        {/* <LogOutButton style={{left: '5%'}} event={signOut}/> */}
 
       </View>
 
@@ -181,6 +184,12 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.backgroundPrimary
 
   },
+  
+  emptyList: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center'
+},
   wecolme: {
     fontSize: 22
   },

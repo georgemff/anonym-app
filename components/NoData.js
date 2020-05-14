@@ -12,6 +12,7 @@ const NoData = props => {
 const styles = StyleSheet.create({
     NoDataScreen: {
         flex: 1,
+        height: '100%',
         justifyContent: 'center',
         alignItems:'center'
     },

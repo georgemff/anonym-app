@@ -1,30 +1,35 @@
-import React from 'react';
-import {TouchableOpacity, StyleSheet} from 'react-native';
-import {Icon} from 'react-native-elements';
-import {Colors} from '../colors/Colors';
+import React, {useContext} from 'react';
+import { TouchableOpacity, View, Text, StyleSheet } from 'react-native';
+import { Icon } from 'react-native-elements';
+import { Colors } from '../colors/Colors';
+import { Context } from '../Authcontext'
 
 const LogOutButton = props => {
+    const { signOut } = useContext(Context);
 
     return (
-        <TouchableOpacity onPress={() => { props.event() }}
-        style={{...styles.addPostButton, ...props.style}}>
-        <Icon name="reply" color="#fff" size={30} />
-    </TouchableOpacity>
+        <TouchableOpacity onPress={() => { signOut() }}
+            style={{ ...styles.addPostButton, ...props.style }}>
+            <Icon name="chevron-left" color={Colors.textPrimary} size={30} width={25}/>
+            <Text style={styles.LogOutText}>Log Out</Text>
+        </TouchableOpacity>
     )
 }
 
 
 const styles = StyleSheet.create({
     addPostButton: {
-        position: 'absolute',
-        bottom: 20,
-        right: 20,
-        width: 50,
-        height: 50,
-        backgroundColor: Colors.buttomPrimary,
-        borderRadius: 50,
+        flexDirection: 'row',
+        width: '100%',
+        backgroundColor: Colors.primary,
         alignItems: 'center',
-        justifyContent: 'center'
+        paddingVertical: 20,
+        paddingHorizontal: 10
+    },
+    LogOutText: {
+        color: Colors.textPrimary,
+        fontSize: 16,
+        marginLeft: 10
     }
 })
 

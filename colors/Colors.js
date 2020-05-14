@@ -6,5 +6,6 @@ export const Colors = {
     date: '#818384',
     activeTab: '#526bc5',
     inActiveTab: '#818384',
-    borderColor: '#343536'
+    borderColor: '#343536',
+    danger: '#ff4500'
 }

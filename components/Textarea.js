@@ -17,7 +17,8 @@ const TextArea = props => {
             .add({
                 content: post,
                 userId: uuid,
-                createdAt: new Date().getTime()
+                createdAt: new Date().getTime(),
+                region: await AsyncStorage.getItem('region')
             })
             .then(r => {
                 setPost('');

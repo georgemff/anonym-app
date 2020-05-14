@@ -1,4 +1,4 @@
-import React, { useState, createContext, useMemo } from 'react';
+import React, { useState, createContext, useMemo, useContext } from 'react';
 import { AsyncStorage, View, Text, StyleSheet } from 'react-native';
 import Header from './components/Header';
 import LoginNavigation from './navigation/LoginNavigation';
@@ -15,6 +15,9 @@ const AuthContext = () => {
     const [senderId, setSenderId] = useState('779623741394');
     React.useEffect(() => {
         updateStatusState();
+        return () => {
+
+        }
     }, []);
     const authContext = useMemo(() => (
         {
@@ -23,12 +26,20 @@ const AuthContext = () => {
                     .then(async (r) => {
                         try {
                             const token = await auth.currentUser.getIdToken();
-                            if(token){
+                            if (token) {
                                 await AsyncStorage.setItem('accessToken', token);
                             }
                             const uuid = auth.currentUser.uid;
-                            if(uuid) {
+                            if (uuid) {
                                 await AsyncStorage.setItem('uuid', uuid);
+                                const userSnapshot = await users.where('userId', '==', uuid).get();
+                                let user;
+                                userSnapshot.forEach(doc => {
+                                    user = doc.data();
+                                });
+                                if(user && user.region) {
+                                await AsyncStorage.setItem('region', user.region);
+                                }
                             }
                             let notificationPermission = await Permissions.getAsync(Permissions.NOTIFICATIONS);
                             if (notificationPermission != 'granted') {
@@ -36,8 +47,8 @@ const AuthContext = () => {
                             }
                             let deviceToken;
                             if (notificationPermission.granted) {
-                                deviceToken = await Notifications.getDevicePushTokenAsync({gcmSenderId: senderId});
-                                saveDeviceToken(deviceToken);
+                                // deviceToken = await Notifications.getDevicePushTokenAsync({ gcmSenderId: senderId });
+                                // saveDeviceToken(deviceToken);
                             }
                             updateStatusState();
                         }
@@ -63,8 +74,13 @@ const AuthContext = () => {
                                     })
                             })
                         }
-                        await AsyncStorage.removeItem('accessToken');
-                        await AsyncStorage.removeItem('uuid');
+                        // await AsyncStorage.removeItem('accessToken');
+                        // await AsyncStorage.removeItem('uuid');
+                        try{
+                        await AsyncStorage.multiRemove(['accessToken', 'uuid', 'region'])
+                        } catch(e) {
+                            console.log(e)
+                        }
                         updateStatusState();
                     })
             },
@@ -77,17 +93,18 @@ const AuthContext = () => {
                             userId: user.uid,
                             photoURL: user.photoURL,
                             userName: data.username,
-                            location: data.location
+                            city: data.city,
+                            region: data.region
                         });
                         const token = await user.getIdToken();
-                        if(token) {
+                        if (token) {
                             await AsyncStorage.setItem('accessToken', token);
                         }
 
                         const uuid = auth.currentUser.uid;
-                        if(uuid) {
+                        if (uuid) {
                             await AsyncStorage.setItem('uuid', uuid);
-                        }                        
+                        }
 
                         updateStatusState();
                     })

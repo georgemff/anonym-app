@@ -3,10 +3,9 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { MaterialCommunityIcons } from 'react-native-vector-icons';
 import {Colors} from '../colors/Colors';
 
-
-import FeedNavigation from '../navigation/FeedNavigation';
+import DrawerNavigation from './DrawerNavigation'
+// import FeedNavigation from '../navigation/FeedNavigation';
 import ProfileNavigation from './ProfileNavigation';
-
 const BottomTab = createBottomTabNavigator();
 
 
@@ -21,19 +20,20 @@ export default function LoginNavigation() {
                 borderTopColor: Colors.borderColor
             }
         }}>
-            <BottomTab.Screen name="Home" component={FeedNavigation}
+            <BottomTab.Screen name="Home" component={DrawerNavigation}
                 options={{
                     tabBarLabel: 'Home',
                     tabBarIcon: ({ color, size }) => (
                         <MaterialCommunityIcons name="home" color={color} size={size} />
                     ),
+                    
                 }} />
             <BottomTab.Screen name="Profile" component={ProfileNavigation} title="Your Profile"
                 options={{
                     tabBarLabel: 'Profile',
                     tabBarIcon: ({ color, size }) => (
                         <MaterialCommunityIcons name="account" color={color} size={size} />
-                    ),
+                    )
                 }} />
         </BottomTab.Navigator>
     );
