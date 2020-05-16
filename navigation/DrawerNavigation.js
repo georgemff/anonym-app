@@ -13,13 +13,14 @@ const Drawer = createDrawerNavigator();
 export default function DrawerNavigation() {
     return (
         <Drawer.Navigator
+        initialRouteName="Home"
             drawerStyle={{ flex: 1, justifyContent: 'center', backgroundColor: Colors.primary }}
             drawerContent={(props) => {
                 return (
                     <DrawerContentScrollView {...props} contentContainerStyle={{ flex: 1 }}>
                         <SafeAreaView>
-                            <DrawerItemList {...props} />
-                            <ExpandedButton navigation={props.navigation} />
+                            {/* <DrawerItemList {...props} /> */}
+                            <ExpandedButton props={props} />
                         </SafeAreaView>
                         <View style={{ flex: 1, justifyContent: 'flex-end' }}>
                             <LogOutButton />

@@ -6,8 +6,10 @@ import { enableScreens } from 'react-native-screens'
 import { decode, encode } from 'base-64'
 import { StatusBar } from 'react-native';
 import { Colors } from './colors/Colors';
-
-
+import {Provider} from 'react-redux';
+import {createStore} from 'redux';
+import postReducer from './reducers/postReducer';
+import {store} from './store';
 export default function App() {
   console.ignoredYellowBox = ['Setting a timer'];
   if (!global.btoa) { global.btoa = encode }
@@ -19,9 +21,11 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <StatusBar backgroundColor={Colors.primary} />
+      <Provider store={store} >
       <NavigationContainer>
         <Authcontext />
       </NavigationContainer>
+      </Provider>
     </SafeAreaProvider>
 
   );

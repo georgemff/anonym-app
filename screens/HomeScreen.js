@@ -12,9 +12,9 @@ import {
 } from 'react-native';
 import Card from '../components/Card';
 import { Colors } from '../colors/Colors';
-
+import { Icon } from 'react-native-elements';
 import { posts, comments } from '../firebaseInit'
-
+import { connect } from 'react-redux';
 import { formatDate, updateAuthorUserName } from '../helpers/Helpers'
 import AddPostButton from '../components/AddPostButton';
 import NoData from '../components/NoData';
@@ -25,17 +25,20 @@ const HomeScreen = (props) => {
     const [postData, setPostData] = useState([]);
     const [postId, setPostId] = useState('');
     const [postView, setPostView] = useState('local');
+ 
+    if (props.postView !== postView) {
+        setPostView(props.postView);
+    }
 
     useEffect(() => {
-        console.log(props.postViewProp)
-        if(props.postViewProp && postView !== props.postViewProp) {
-            setPostView(props.postViewProp)
+        if (props.postViewProp && postView !== props.postViewProp) {
+            setPostView(props.postView.postView)
         }
         getPosts();
         return () => {
 
         }
-    }, [props.postViewProp]);
+    }, [postView]);
 
     const refreshHandler = () => {
         getPosts();
@@ -47,7 +50,7 @@ const HomeScreen = (props) => {
             let queryData = [];
             const region = await AsyncStorage.getItem('region');
             let postsQuery;
-            if(postView === 'local') {
+            if (postView === 'local') {
                 postsQuery = await posts.where('region', '==', region).orderBy('createdAt', 'desc').get();
             } else if (postView === 'global') {
                 postsQuery = await posts.orderBy('createdAt', 'desc').get();
@@ -66,11 +69,6 @@ const HomeScreen = (props) => {
         }
     }
 
-
-
-
-
-
     const showModal = async (userId, postId) => {
         const uuid = await AsyncStorage.getItem('uuid');
         if (userId == uuid) {
@@ -80,7 +78,7 @@ const HomeScreen = (props) => {
     }
 
     const deletePost = async () => {
-        try{
+        try {
             await posts.doc(postId).delete();
             const postRelatedCommentsSnapshot = await comments.where('postId', '==', postId).get();
             postRelatedCommentsSnapshot.forEach(doc => {
@@ -88,7 +86,7 @@ const HomeScreen = (props) => {
             })
             getPosts();
             setModalVisible(false);
-        } catch(e) {
+        } catch (e) {
             console.log(e)
         }
     }
@@ -135,20 +133,31 @@ const HomeScreen = (props) => {
                 </View>
             </Modal>
             {/* Modal End */}
-            {/* {(!postData || postData.length == 0) && !refresh ? <NoData text={'No Posts Yet'} /> : */}
-                <FlatList
-                    data={postData}
-                    renderItem={({ item }) => (
-                        <TouchableOpacity onPress={() => { getPostDetails(item) }} activeOpacity={0.8} onLongPress={() => { showModal(item.userId, item.postId) }}>
-                            <Card photoURL={item.photoURL ? item.photoURL : 'NoPhoto'} author={item.userName} content={item.content} date={item.createdAt} />
-                        </TouchableOpacity>
-                    )}
-                    keyExtractor={item => item.postId}
-                    refreshing={refresh}
-                    onRefresh={refreshHandler}
-                    contentContainerStyle={postData?.length === 0 && styles.emptyList}
-                    ListEmptyComponent={() => (<NoData text={'No Posts Yet'} />)} />
-            {/* } */}
+            {
+                postView === 'local' ?
+                    <View style={styles.postViewAlert}>
+                        <Icon name="place" size={20} color={Colors.textPrimary} />
+                        <Text style={{ color: Colors.textPrimary, fontSize: 16, marginLeft: 5 }}>Local</Text>
+                    </View>
+                    :
+                    <View style={styles.postViewAlert}>
+
+                        <Icon name="public" size={20} color={Colors.textPrimary} />
+                        <Text style={{ color: Colors.textPrimary, fontSize: 16, marginLeft: 5 }}>Global</Text>
+                    </View>
+            }
+            <FlatList
+                data={postData}
+                renderItem={({ item }) => (
+                    // <TouchableOpacity onPress={() => { getPostDetails(item) }} activeOpacity={0.8} onLongPress={() => { showModal(item.userId, item.postId) }}>
+                        <Card photoURL={item.photoURL ? item.photoURL : 'NoPhoto'} author={item.userName} content={item.content} date={item.createdAt} />
+                    // </TouchableOpacity>
+                )}
+                keyExtractor={item => item.postId}
+                refreshing={refresh}
+                onRefresh={refreshHandler}
+                contentContainerStyle={postData?.length === 0 && styles.emptyList}
+                ListEmptyComponent={() => (<NoData text={'No Posts Yet'} />)} />
             <AddPostButton event={addPostNavigationHandler} />
 
         </View>
@@ -230,7 +239,32 @@ const styles = StyleSheet.create({
         borderRadius: 50,
         alignItems: 'center',
         justifyContent: 'center'
+    },
+    postViewAlert: {
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+        paddingVertical: 10,
+        paddingHorizontal: 5,
+        backgroundColor: Colors.primary,
+        marginTop: 5
     }
-})
+});
 
-export default HomeScreen;
+const mapStateToProps = (state) => {
+    return {
+        Test: "WTF",
+        postView: state.postView.postView
+    }
+}
+
+// const mapToDispatchProps = (dispatch) => { 
+//     return {
+//         change: (post) => dispatch({postView: post})
+//     }
+// }
+
+
+
+export default connect(mapStateToProps)(HomeScreen);
+;

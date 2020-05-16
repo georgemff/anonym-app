@@ -5,7 +5,7 @@ import LoginNavigation from './navigation/LoginNavigation';
 import HomeNavigation from './navigation/HomeNavigation';
 import * as Permissions from 'expo-permissions';
 import { Notifications } from 'expo';
-
+import {imageColors} from './colors/Colors';
 import { auth, users, notificationTokens } from './firebaseInit'
 export const Context = createContext();
 
@@ -19,6 +19,9 @@ const AuthContext = () => {
 
         }
     }, []);
+    const randomInteger = () => {
+        return Math.floor(Math.random() * (4 - 0 + 1)) + 0;
+      }
     const authContext = useMemo(() => (
         {
             signIn: async data => {
@@ -91,7 +94,7 @@ const AuthContext = () => {
                         const user = auth.currentUser;
                         await users.add({
                             userId: user.uid,
-                            photoURL: user.photoURL,
+                            photoURL: user.photoURL ? user.photoURL : imageColors[randomInteger()],
                             userName: data.username,
                             city: data.city,
                             region: data.region

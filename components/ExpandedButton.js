@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import { Icon } from 'react-native-elements';
 import { Colors } from '../colors/Colors';
-import {HomeScreen} from '../screens/HomeScreen';
+import {connect, dispatch} from 'react-redux';
+import { LOCAL_POST, GLOBAL_POST } from '../actions/type';
 const ExpandedButton = (props) => {
     const [visible, setVisible] = useState(false);
 
@@ -18,11 +19,16 @@ const ExpandedButton = (props) => {
     }
 
     const showLocalPosts = () => {
-        props.navigation.navigate('Home', {postViewScreen: 'local'})
+        props.change('LOCAL')
+        showHideOptions();
+        props.props.navigation.closeDrawer();
     }
 
     const showGlobalPosts = () => {
-        props.navigation.navigate('Home', {postViewScreen: 'global'})
+        props.change('GLOBAL');
+        showHideOptions();
+        props.props.navigation.closeDrawer();
+
     }
 
 
@@ -77,5 +83,18 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
     }
 })
+const mapStateToProps = (state) => {
+    return {
+        Test: "WTF",
+        postView: state.postView.postView
+    }
+}
 
-export default ExpandedButton;
+const mapToDispatchProps = (dispatch) => { 
+    return {
+        change: (post) => dispatch({type: post=='LOCAL' ? LOCAL_POST : GLOBAL_POST,postView: post})
+    }
+}
+
+export default connect(mapStateToProps, mapToDispatchProps)(ExpandedButton);
+

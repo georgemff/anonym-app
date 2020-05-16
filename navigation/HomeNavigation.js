@@ -1,41 +1,41 @@
 import React from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
-import { MaterialCommunityIcons } from 'react-native-vector-icons';
-import {Colors} from '../colors/Colors';
+import { View, Text, TouchableOpacity } from 'react-native';
+import DrawerNavigation from './DrawerNavigation';
+import { createStackNavigator } from '@react-navigation/stack';
+import PostDetails from '../screens/PostDetails';
+import AddPost from '../screens/AddPost';
+import { Colors } from '../colors/Colors';
+import { Icon } from 'react-native-elements';
+import BackButton from '../components/backButton';
+const Home = createStackNavigator();
 
-import DrawerNavigation from './DrawerNavigation'
-// import FeedNavigation from '../navigation/FeedNavigation';
-import ProfileNavigation from './ProfileNavigation';
-const BottomTab = createBottomTabNavigator();
 
-
-export default function LoginNavigation() {
+export default function HomeNavigation() {
     return (
-        <BottomTab.Navigator tabBarOptions={{
-            activeTintColor: Colors.activeTab,
-            inactiveTintColor: Colors.inActiveTab,
-            allowFontScaling: true,
-            style: {
-                backgroundColor: Colors.primary,
-                borderTopColor: Colors.borderColor
-            }
-        }}>
-            <BottomTab.Screen name="Home" component={DrawerNavigation}
-                options={{
-                    tabBarLabel: 'Home',
-                    tabBarIcon: ({ color, size }) => (
-                        <MaterialCommunityIcons name="home" color={color} size={size} />
-                    ),
-                    
-                }} />
-            <BottomTab.Screen name="Profile" component={ProfileNavigation} title="Your Profile"
-                options={{
-                    tabBarLabel: 'Profile',
-                    tabBarIcon: ({ color, size }) => (
-                        <MaterialCommunityIcons name="account" color={color} size={size} />
-                    )
-                }} />
-        </BottomTab.Navigator>
+        <Home.Navigator>
+            <Home.Screen options={{ headerShown: false }} name="Home" component={DrawerNavigation} />
+            <Home.Screen options={{
+                headerStyle: {
+                    backgroundColor: Colors.primary,
+                },
+                title: 'Comments',
+                headerTintColor: Colors.textPrimary,
+                headerLeft: () => (
+                    <BackButton />
+                )
+            }} name="PostDetails" component={PostDetails} />
+            <Home.Screen
+            options={{
+                headerStyle: {
+                    backgroundColor: Colors.primary,
+                },
+                title: 'Create Post',
+                headerTintColor: Colors.textPrimary,
+                headerLeft: () => (
+                    <BackButton />
+                )
+            }} name="AddPost" component={AddPost} />
+        </Home.Navigator>
     );
 }
 

@@ -1,18 +1,38 @@
 import React from 'react';
-import { createStackNavigator } from '@react-navigation/stack';
+import { MaterialCommunityIcons } from 'react-native-vector-icons';
 import HomeScreen from '../screens/HomeScreen';
-import PostDetails from '../screens/PostDetails';
-import AddPost from '../screens/AddPost';
+import ProfileScreen from '../screens/ProfileScreen';
+import { Colors } from '../colors/Colors'
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 
-const Feed = createStackNavigator();
+const bottomTab = createBottomTabNavigator();
 
 export default function FeedNavigation() {
     return (
-        <Feed.Navigator>
-            <Feed.Screen name="Home" component={HomeScreen}  options={{ headerShown: false}}/>
-            <Feed.Screen name="PostDetails" component={PostDetails} options={{ headerShown: false}} />
-            <Feed.Screen name="AddPost" component={AddPost} options={{ headerShown: false}}  />
-        </Feed.Navigator>
+        <bottomTab.Navigator initialRouteName="Home" tabBarOptions={{
+            activeTintColor: Colors.activeTab,
+            inactiveTintColor: Colors.inActiveTab,
+            allowFontScaling: true,
+            style: {
+                backgroundColor: Colors.primary,
+                borderTopColor: Colors.borderColor
+            }
+        }}>
+            <bottomTab.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} options={{
+                tabBarLabel: 'Home',
+                tabBarIcon: ({ color, size }) => (
+                    <MaterialCommunityIcons name="home" color={color} size={size} />
+                ),
+
+            }} />
+            <bottomTab.Screen name="Profile" component={ProfileScreen} options={{ headerShown: false }} options={{
+                tabBarLabel: 'Home',
+                tabBarIcon: ({ color, size }) => (
+                    <MaterialCommunityIcons name="account" color={color} size={size} />
+                ),
+
+            }} />
+        </bottomTab.Navigator>
     );
 }

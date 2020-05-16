@@ -13,7 +13,7 @@ import { uriToBlob } from '../helpers/Helpers';
 import AddPostButton from '../components/AddPostButton';
 import LogOutButton from '../components/LogOutButton';
 import NoData from '../components/NoData';
-import {Colors} from '../colors/Colors';
+import { Colors, imageColors } from '../colors/Colors';
 
 
 const ProfileScreen = ({ navigation }) => {
@@ -139,7 +139,7 @@ const ProfileScreen = ({ navigation }) => {
     getUsetPosts();
 
     return () => {
-      
+
     }
   }, [])
 
@@ -147,7 +147,15 @@ const ProfileScreen = ({ navigation }) => {
     <View style={styles.screen}>
       <View style={styles.profilePictureContainer}>
         <TouchableOpacity onPress={() => { _pickImage() }}>
-          <Image source={{ uri: userInfo.photoURL ? userInfo.photoURL : 'NoPhoto' }} style={{ height: 100, width: 100, borderRadius: 50, borderColor: '#fff', borderWidth: 2, backgroundColor: 'rgba(0,0,0,.1)' }} />
+          {
+            imageColors.includes(userInfo.photoURL) ?
+              <View style={{...styles.profilePicture, backgroundColor: userInfo.photoURL, justifyContent: 'center', alignItems: 'center'}}>
+                <Text style={{color: Colors.textPrimary, fontSize: 38}}>{userInfo.userName[0].toUpperCase()}</Text>
+                </View>
+              :
+              <Image source={{ uri: userInfo.photoURL ? userInfo.photoURL : 'NoPhoto' }} style={styles.profilePicture} />
+
+          }
         </TouchableOpacity>
         <Text style={styles.userName}>
           {userInfo.userName}
@@ -156,20 +164,20 @@ const ProfileScreen = ({ navigation }) => {
       <View>
       </View>
       <View style={{ flex: 1 }}>
-          <FlatList
-            data={userPosts}
-            renderItem={({ item }) => (
-              <TouchableOpacity onPress={() => { getPostDetails(item) }} activeOpacity={0.8}>
-                <Card photoURL={item.photoURL ? item.photoURL : 'NoPhoto'} author={item.userName} content={item.content} date={item.createdAt} />
-              </TouchableOpacity>
-            )}
-            keyExtractor={item => item.postId}
-            refreshing={refresh}
-            onRefresh={refreshHandler}
-            contentContainerStyle={userPosts?.length === 0 && styles.emptyList}
-            ListEmptyComponent={() => (<NoData text={'No Posts Yet'} />)}
-          />
-        <AddPostButton style={{right: '5%'}} event={addPostNavigationHandler} />
+        <FlatList
+          data={userPosts}
+          renderItem={({ item }) => (
+            <TouchableOpacity onPress={() => { getPostDetails(item) }} activeOpacity={0.8}>
+              <Card photoURL={item.photoURL ? item.photoURL : 'NoPhoto'} author={item.userName} content={item.content} date={item.createdAt} />
+            </TouchableOpacity>
+          )}
+          keyExtractor={item => item.postId}
+          refreshing={refresh}
+          onRefresh={refreshHandler}
+          contentContainerStyle={userPosts?.length === 0 && styles.emptyList}
+          ListEmptyComponent={() => (<NoData text={'No Posts Yet'} />)}
+        />
+        <AddPostButton style={{ right: '5%' }} event={addPostNavigationHandler} />
         {/* <LogOutButton style={{left: '5%'}} event={signOut}/> */}
 
       </View>
@@ -184,12 +192,12 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.backgroundPrimary
 
   },
-  
+
   emptyList: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center'
-},
+  },
   wecolme: {
     fontSize: 22
   },
@@ -197,6 +205,14 @@ const styles = StyleSheet.create({
     paddingTop: '10%',
     paddingBottom: '5%',
     alignItems: 'center'
+  },
+  profilePicture: {
+    height: 100,
+    width: 100,
+    borderRadius: 50,
+    borderColor: '#fff',
+    borderWidth: 2,
+    backgroundColor: 'rgba(0,0,0,.1)'
   },
   userName: {
     fontSize: 22,

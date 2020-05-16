@@ -9,3 +9,5 @@ export const Colors = {
     borderColor: '#343536',
     danger: '#ff4500'
 }
+
+export const imageColors = ['red', 'yellow', 'blue', 'green', 'pink']
