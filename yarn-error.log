@@ -1,0 +1,78 @@
+Arguments: 
+  C:\Program Files\nodejs\node.exe C:\Program Files (x86)\Yarn\bin\yarn.js add expo-cli
+
+PATH: 
+  C:\Program Files (x86)\Common Files\Intel\Shared Libraries\redist\intel64\compiler;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\NVIDIA Corporation\NVIDIA NvDLISR;C:\Program Files\Microsoft SQL Server\Client SDK\ODBC\130\Tools\Binn\;C:\Program Files (x86)\Microsoft SQL Server\140\Tools\Binn\;C:\Program Files\Microsoft SQL Server\140\Tools\Binn\;C:\Program Files\Microsoft SQL Server\140\DTS\Binn\;C:\Program Files (x86)\Microsoft SQL Server\Client SDK\ODBC\130\Tools\Binn\;C:\Program Files (x86)\Microsoft SQL Server\140\DTS\Binn\;C:\Program Files (x86)\Microsoft SQL Server\140\Tools\Binn\ManagementStudio\;C:\Program Files\nodejs\;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\Git\cmd;C:\Program Files (x86)\Yarn\bin\;C:\PHP;C:\composer;C:\Users\George\AppData\Loca;C:\Program Files\dotnet\;C:\Program Files\Microsoft SQL Server\130\Tools\Binn\;C:\Program Files\Microsoft SQL Server\Client SDK\ODBC\170\Tools\Binn\;C:\Program Files (x86)\dotnet\;C:\Program Files\Microsoft\Web Platform Installer\;C:\Users\George\AppData\Local\Programs\Python\Python38\Scripts\;C:\Users\George\AppData\Local\Programs\Python\Python38\;C:\Users\George\AppData\Local\Microsoft\WindowsApps;C:\Program Files\JetBrains\DataGrip 2018.3.3\bin;C:\Users\George\AppData\Roaming\npm;C:\Users\George\AppData\Local\Programs\Microsoft VS Code\bin;C:\Program Files\JetBrains\WebStorm 2019.1.2\bin;C:\Users\George\AppData\Local\Pandoc\;C:\Program Files\JetBrains\IntelliJ IDEA 2019.1.3\bin;C:\Users\George\AppData\Local\Yarn\bin;C:\Users\George\AppData\Roaming\Composer\vendor\bin;C:\adb;C:\Users\George\.dotnet\tools;C:\MinGW\bin;;C:\Program Files\JetBrains\JetBrains Rider 2019.2.3\bin;
+
+Yarn version: 
+  1.16.0
+
+Node version: 
+  10.15.3
+
+Platform: 
+  win32 x64
+
+Trace: 
+  Error: https://registry.yarnpkg.com/core-js/-/core-js-2.6.11.tgz: ESOCKETTIMEDOUT
+      at ClientRequest.<anonymous> (C:\Program Files (x86)\Yarn\lib\cli.js:130217:19)
+      at Object.onceWrapper (events.js:277:13)
+      at ClientRequest.emit (events.js:189:13)
+      at TLSSocket.emitRequestTimeout (_http_client.js:662:40)
+      at Object.onceWrapper (events.js:277:13)
+      at TLSSocket.emit (events.js:189:13)
+      at TLSSocket.Socket._onTimeout (net.js:440:8)
+      at ontimeout (timers.js:436:11)
+      at tryOnTimeout (timers.js:300:5)
+      at listOnTimeout (timers.js:263:5)
+
+npm manifest: 
+  {
+    "main": "node_modules/expo/AppEntry.js",
+    "scripts": {
+      "start": "expo start",
+      "android": "expo start --android",
+      "ios": "expo start --ios",
+      "web": "expo start --web",
+      "eject": "expo eject"
+    },
+    "dependencies": {
+      "@react-native-community/masked-view": "0.1.9",
+      "@react-navigation/bottom-tabs": "5.2.6",
+      "@react-navigation/drawer": "^5.4.1",
+      "@react-navigation/native": "^5.1.5",
+      "@react-navigation/stack": "5.2.10",
+      "base-64": "^0.1.0",
+      "exp": "^57.2.1",
+      "expo": "^37.0.9",
+      "expo-constants": "^9.0.0",
+      "expo-image-picker": "^8.1.0",
+      "expo-location": "^8.1.0",
+      "expo-permissions": "^8.1.0",
+      "firebase": "^7.14.3",
+      "react": "16.13.1",
+      "react-dom": "16.13.1",
+      "react-native": "https://github.com/expo/react-native/archive/sdk-37.0.1.tar.gz",
+      "react-native-elements": "^1.2.7",
+      "react-native-gesture-handler": "1.6.1",
+      "react-native-reanimated": "^1.8.0",
+      "react-native-safe-area-context": "^0.7.3",
+      "react-native-screens": "^2.4.0",
+      "react-native-vector-icons": "^6.6.0",
+      "react-native-web": "0.12.2",
+      "react-navigation": "4.3.7",
+      "react-redux": "^7.2.0",
+      "redux": "^4.0.5"
+    },
+    "devDependencies": {
+      "babel-preset-expo": "~8.1.0",
+      "@babel/core": "^7.8.6"
+    },
+    "private": true
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile

@@ -149,9 +149,7 @@ const HomeScreen = (props) => {
             <FlatList
                 data={postData}
                 renderItem={({ item }) => (
-                    // <TouchableOpacity onPress={() => { getPostDetails(item) }} activeOpacity={0.8} onLongPress={() => { showModal(item.userId, item.postId) }}>
-                        <Card photoURL={item.photoURL ? item.photoURL : 'NoPhoto'} author={item.userName} content={item.content} date={item.createdAt} />
-                    // </TouchableOpacity>
+                        <Card photoURL={item.photoURL ? item.photoURL : 'NoPhoto'} postId={item.postId} author={item.userName} content={item.content} date={item.createdAt} />
                 )}
                 keyExtractor={item => item.postId}
                 refreshing={refresh}
@@ -258,13 +256,5 @@ const mapStateToProps = (state) => {
     }
 }
 
-// const mapToDispatchProps = (dispatch) => { 
-//     return {
-//         change: (post) => dispatch({postView: post})
-//     }
-// }
-
-
 
 export default connect(mapStateToProps)(HomeScreen);
-;

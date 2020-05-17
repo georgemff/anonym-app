@@ -32,4 +32,4 @@ export const posts = db.collection('posts');
 export const users = db.collection('users');
 export const comments = db.collection('comments');
 export const notificationTokens = db.collection('notificationTokens');
-export const postReacts = db.collection('postReacts');
+export const postReactions = db.collection('postReactions');

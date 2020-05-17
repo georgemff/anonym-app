@@ -1,51 +1,216 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, Animated, LinearGradient, TouchableNativeFeedback } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { View, Text, StyleSheet, Image, PanResponder, Animated, AsyncStorage } from 'react-native';
 
-import { Colors, imageColors } from '../colors/Colors'
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import { Colors, imageColors } from '../colors/Colors';
+
+export const images = [
+    { id: 'like', img: 'http://i.imgur.com/LwCYmcM.gif' },
+    { id: 'love', img: 'http://i.imgur.com/k5jMsaH.gif' },
+    { id: 'haha', img: 'http://i.imgur.com/f93vCxM.gif' },
+    { id: 'yay', img: 'http://i.imgur.com/a44ke8c.gif' },
+    { id: 'wow', img: 'http://i.imgur.com/9xTkN93.gif' },
+    { id: 'sad', img: 'http://i.imgur.com/tFOrN5d.gif' },
+    { id: 'angry', img: 'http://i.imgur.com/1MgcQg0.gif' }
+]
+import { postReactions } from '../firebaseInit';
 const Card = props => {
+    const [selected, setSelected] = useState('');
     const [open, setOpen] = useState(false);
-    // const url = 'http://i.imgur.com/k5jMsaH.gif';
-    const images = [
-        { id: 'like', img: 'http://i.imgur.com/LwCYmcM.gif' },
-        { id: 'love', img: 'http://i.imgur.com/k5jMsaH.gif' },
-        { id: 'haha', img: 'http://i.imgur.com/f93vCxM.gif' },
-        { id: 'yay', img: 'http://i.imgur.com/a44ke8c.gif' },
-        { id: 'wow', img: 'http://i.imgur.com/9xTkN93.gif' },
-        { id: 'sad', img: 'http://i.imgur.com/tFOrN5d.gif' },
-        { id: 'angry', img: 'http://i.imgur.com/1MgcQg0.gif' }
-    ]
+    global._imgLayouts = {};
+    global._scaleAnimation = new Animated.Value(0);
+    global._imageAnimations = {};
+    global._hoveredImg = '';
 
-    const getImages = () => {
-        return images.map((img, i) => {
-            return (
-                <View style={{marginRight: 5}}>
-                    <TouchableNativeFeedback onPress={() => (reactChoosen(img.id))}>
-                        <Image style={{...styles.pic,}}
-                            source={{ uri: img.img }} />
-                    </TouchableNativeFeedback>
-                </View>
-            )
+    images.forEach((img) => {
+        _imageAnimations[img.id] = {
+            position: new Animated.Value(1),
+            scale: new Animated.Value(1)
+        };
+    })
+    const panResponder = React.useRef(
+        PanResponder.create({
+            // Ask to be the responder:
+            onStartShouldSetPanResponder: (evt, {gestureState}) => true,
+            onStartShouldSetPanResponderCapture: (evt, {dx, dy}) =>
+            {
+                console.log(dx, dy)
+                return Math.abs(dx) > 20;
+
+            },
+            onMoveShouldSetPanResponder: (evt, gestureState) => true,
+            onMoveShouldSetPanResponderCapture: (evt, gestureState) =>
+                true,
+
+            onPanResponderGrant: (evt, getstureState) => {
+                Animated.parallel([
+                    Animated.timing(_scaleAnimation, {
+                        duration: 100,
+                        toValue: 1
+                    }),
+                    Animated.stagger(50, getImageAnimationArray(0))
+                ]).start(() => setOpen(true));
+            },
+            onPanResponderMove: (evt, gestureState) => {
+                console.log(gestureState.dy)
+                if(Math.abs(gestureState.dy) > 150) {
+                    setOpen(false)
+                    return false;
+                }
+                const hoveredImg = getHoveredImg(Math.ceil(evt.nativeEvent.locationX));
+                if (hoveredImg && _hoveredImg !== hoveredImg) {
+                    animateSelected(_imageAnimations[hoveredImg])
+                }
+                if (_hoveredImg !== hoveredImg && _hoveredImg) {
+                    animateFromSelect(_imageAnimations[_hoveredImg]);
+                }
+                _hoveredImg = hoveredImg;
+            },
+            onPanResponderTerminationRequest: (evt, gestureState) =>
+                true,
+            onPanResponderRelease: (evt, gestureState) => {
+                console.log(_hoveredImg)
+                if (_hoveredImg) {
+                    addReactionToPost(_hoveredImg);
+                }
+                // setOpen(false)
+            },
+            onPanResponderEnd: (evt, gestureState) => {
+                setOpen(false);
+            }
+        })
+    ).current;
+
+    const getHoveredImg = (x) => {
+        return Object.keys(_imgLayouts).find((key) => {
+            return x >= _imgLayouts[key].left && x <= _imgLayouts[key].right;
+        })
+    }
+    const getImageAnimationArray = (toValue) => {
+        return images.map((img) => {
+            return Animated.timing(_imageAnimations[img.id].position, {
+                duration: 200,
+                toValue: toValue
+            })
+        });
+    }
+    const openReactions = () => {
+        console.log('open')
+        Animated.parallel([
+            Animated.timing(_scaleAnimation, {
+                duration: 100,
+                toValue: 1
+            }),
+            Animated.stagger(50, getImageAnimationArray(0))
+        ]).start(() => setOpen(true));
+    }
+    const close = (cb) => {
+        this.setState({ open: false }, () => {
+            Animated.stagger(100, [
+                Animated.parallel(this.getImageAnimationArray(55, 0).reverse()),
+                Animated.timing(_scaleAnimation, {
+                    duration: 100,
+                    toValue: 0
+                })
+            ]).start(cb);
         })
     }
 
-    const reactChoosen = (id) => {
-        console.log('reacted: ', id)
-        setOpen(false)
+    const animateSelected = (imgAnimations) => {
+        Animated.parallel([
+            Animated.timing(imgAnimations.position, {
+                duration: 150,
+                toValue: -10
+            }),
+            Animated.timing(imgAnimations.scale, {
+                duration: 150,
+                toValue: 1.2
+            })
+        ]).start();
+    }
+    const animateFromSelect = (imgAnimations, cb) => {
+        Animated.parallel([
+            Animated.timing(imgAnimations.position, {
+                duration: 50,
+                toValue: 0
+            }),
+            Animated.timing(imgAnimations.scale, {
+                duration: 50,
+                toValue: 1
+            })
+        ]).start(cb);
     }
 
-    const pressIn = () => {
-        console.log('PressIn')
-        setOpen(!open)
-    }
-
-
-    const shortPress = () => {
-        if(open){
-            setOpen(false);
-            return;
+    const handleLayoutPosition = (img, position) => {
+        _imgLayouts[img] = {
+            left: position.nativeEvent.layout.x,
+            right: position.nativeEvent.layout.x + position.nativeEvent.layout.width
         }
-        console.log('short')
+    }
+
+    const getImages = function () {
+        return images.map((img) => {
+            return (
+                <Animated.Image
+                    onLayout={handleLayoutPosition.bind(this, img.id)}
+                    key={img.id}
+                    source={{ uri: img.img }}
+                    style={{
+                        ...{ width: 40, height: 40, borderRadius: 40, marginRight: 5 }, transform: [
+                            { scale: _imageAnimations[img.id].scale },
+                            { translateY: _imageAnimations[img.id].position }
+                        ]
+                    }}
+                />
+            );
+        })
+    }
+
+    const getLikeContainerStyle = () => {
+        return {
+            transform: [{ scaleY: _scaleAnimation }],
+            overflow: open ? 'visible' : 'hidden',
+        };
+    }
+    //Animation Code End
+
+    const addReactionToPost = async (hoveredImg) => {
+        console.log(hoveredImg)
+        const userId = await AsyncStorage.getItem('uuid');
+        const userHasReacted = await postReactions.where('userId', '==', userId).get();
+
+        const reactionUrl = images.filter((img) => (
+            img.id === hoveredImg
+        ))[0].img;
+        let updated = false;
+        if(!userHasReacted.empty) {
+            updated = userHasReacted.forEach(async (doc) => {
+                if (doc.data().reaction === hoveredImg) {
+                    await doc.ref.update({
+                        reaction: hoveredImg,
+                        reactionUrl: reactionUrl
+                    })
+                    return true;
+                }
+            })
+        }
+      
+        console.log(updated)
+        if(updated)
+            return;
+
+        postReactions.add({
+            postId: props.postId,
+            userId: userId,
+            reaction: hoveredImg,
+            reactionUrl: reactionUrl
+        })
+            .then(() => {
+                console.log(true)
+            })
+            .catch((e) => {
+                console.log(e)
+            })
+
     }
     return (
         <View style={styles.container}>
@@ -70,15 +235,17 @@ const Card = props => {
                     </View>
                 </View>
             </View>
-            <View style={{paddingLeft: 7, paddingVertical: 10, position: 'relative'}}>
-               {
-                   open &&  <View style={{flexDirection: 'row', position: 'absolute', bottom: '150%', marginLeft: 5,  padding: 7, backgroundColor: Colors.primary, borderRadius: 40, borderWidth: 1, borderColor: Colors.date}}>
-                   {open && getImages()}
-               </View>
-               }
-                <TouchableOpacity onPress={shortPress}  onLongPress={pressIn}><Text style={{color: Colors.textPrimary, fontSize: 16}}>React</Text></TouchableOpacity>
+            <View style={{ paddingHorizontal: 7, paddingVertical: 15, position: 'relative' }}>
+                <Animated.View {...panResponder.panHandlers} style={{ ...getLikeContainerStyle() }} >
+                    {
+                        open &&
+                        <View style={{ flexDirection: 'row', position: 'absolute', bottom: '150%' }}>
+                            {getImages()}
+                        </View>
+                    }
+                    <Text style={{ color: Colors.textPrimary }}>React</Text>
+                </Animated.View>
             </View>
-        
         </View>
     )
 }
@@ -89,7 +256,7 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 2, height: 2 },
         shadowOpacity: 0.10,
         elevation: 1,
-
+        marginTop: 5
     },
     card: {
         padding: 7,
@@ -134,33 +301,6 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0,0,0,.1)',
         marginRight: 7
     },
-    gradiet_out: {
-        //zIndex: 1,
-        //position: 'absolute',
-        //elevation: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: 225,
-        borderWidth: 1,
-        borderColor: '#ccc',
-        //backgroundColor: "#fff"
-        //transform: [{'translate':[0,0,1]}]
-        //zIndex: 5
-      },
-      gradiet_in: {
-        height: 80,
-        width: 80,
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: 40,
-        borderColor: '#ccc',
-        //zIndex: 5
-      },
-      pic: {
-        resizeMode: 'cover',
-        width: 30,
-        height: 30
-      },
 });
 
 export default Card;
