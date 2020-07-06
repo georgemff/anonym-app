@@ -5,7 +5,7 @@ import {Colors} from '../colors/Colors'
 const Header = props => {
     return (
         <View style={styles.header}>
-            <Text style={styles.headerTitle}>Anonym</Text>
+            <Text style={styles.headerTitle}>A</Text>
             <Text style={{ ...styles.headerTitle, ...styles.p }}>Talk</Text>
         </View>
     );

@@ -1,110 +1,139 @@
-import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, FlatList, TextInput, AsyncStorage, TouchableHighlight, Text } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, StyleSheet, FlatList, TextInput, AsyncStorage, TouchableHighlight, Text, Keyboard } from 'react-native';
 
-import Card from '../components/Card';
-import { comments } from '../firebaseInit';
+import PostCard from '../components/postCard';
+import CommentCard from '../components/commentCard';
+import { comments, queryComments, postReactions } from '../firebaseInit';
 import { Colors } from '../colors/Colors';
-import { formatDate, updateAuthorUserName } from '../helpers/Helpers'
 import NoData from '../components/NoData';
+import { updatePostView } from '../helpers/Helpers';
 
 const PostDetails = ({ route, navigation }) => {
     navigation.setOptions({ tabBarVisible: false })
-    const { post } = route.params;
+    const post = useRef(route.params.post)
     const [comment, setComment] = useState('');
     const [refresh, setRefresh] = useState(true);
     const [commentsData, setcommentsData] = useState([]);
+    const [updatingComment, setUpdatingComment] = useState(false);
+    const uuid = useRef(undefined);
 
 
 
     const addCommentHandler = async () => {
-        if (comment == '') {
-            return;
-        }
-        const uuid = await AsyncStorage.getItem('uuid');
-        comments.add({
-            comment: comment,
-            userId: uuid,
-            postId: post.postId,
-            createdAt: new Date().getTime()
-        })
-            .then(r => {
-                setComment('');
+        try {
+            if (comment == '') {
+                return;
+            }
+            Keyboard.dismiss();
+            const uuid = await AsyncStorage.getItem('uuid');
+            comments.add({
+                comment: comment,
+                userId: uuid,
+                postId: post.current.postId,
+                createdAt: new Date().getTime()
             })
+                .then(r => {
+                    setComment('');
+                })
+        } catch (e) {
+            console.log('addCommentHandler Error: ', e)
+        }
     }
 
     const getComments = async () => {
         try {
             setRefresh(true);
-            const postComments = comments
-                .where("postId", "==", post.postId)
-                .orderBy("createdAt", "asc")
-                .get();
-            if ((await postComments).empty) {
-                setRefresh(false);
-                return;
-            }
-            const postQuery = await postComments;
-            let queryData = []
-            postQuery.forEach(function (doc) {
-                let comment = doc.data();
-                comment.commentId = doc.id;
-                comment.createdAt = formatDate(comment.createdAt)
-                queryData.push(comment);
-            });
 
-            const updatedQueryData = await updateAuthorUserName(queryData);
+            const updatedQueryData = await queryComments({ postId: post.current.postId });
             setcommentsData(updatedQueryData.data);
             setRefresh(false)
         } catch (e) {
-            console.log(e)
+            console.log('getComments Error: ', e)
         }
 
 
     }
 
     const refreshHandler = () => {
-        getComments()
+        getComments();
+        getPostDetails();
     }
 
-    useEffect(() => {
-        getComments();
-        const unsubscribe = comments
-            .where("postId", "==", post.postId)
-            .orderBy('createdAt', "asc")
-            .onSnapshot(async (querySnapshot) => {
-                let queryData = [];
-                querySnapshot.forEach(function (doc) {
-                    let comment = doc.data();
-                    comment.commentId = doc.id;
-                    comment.createdAt = formatDate(comment.createdAt)
-                    queryData.push(comment);
-                });
-                const updatedQueryData = await updateAuthorUserName(queryData);
-                setcommentsData(updatedQueryData.data);
-            });
+    const getPostDetails = async () => {
 
-        return () => {
-            unsubscribe();
+        try {
+            postReactions.where('postId', '==', post.current.postId)
+                .get()
+                .then(snapshot => {
+                    post.current.count = 0;
+                    snapshot.forEach(doc => {
+                        post.current.count = ++post.current.count;
+                    })
+                    console.log(post.current.count)
+                })
+        } catch (e) {
+            console.log('getPostDetails Error: ', e);
         }
+    }
+
+    const updateSinglePost = (oldPost, react) => {
+
+        try {
+            setRefresh(true)
+
+            const updatedData = updatePostView(oldPost, react, [oldPost], uuid.current);
+            console.log('updated', updatedData)
+            post.current = updatedData[0];
+
+            setRefresh(false)
+        } catch (e) {
+            console.log('updateSinglePost Error: ', e)
+        }
+    }
+
+
+    useEffect(() => {
+
+        try {
+            AsyncStorage.getItem('uuid')
+                .then(id => {
+                    uuid.current = id;
+                    getComments();
+                    getPostDetails();
+                })
+            
+            const unsubscribe = comments
+                .where("postId", "==", post.current.postId)
+                .onSnapshot(() => {
+                    getComments();
+                });
+                return () => {
+                    unsubscribe();
+                }
+        } catch (e) {
+            console.log('useEffect Error: ', e)
+        }
+
+        
 
     }, []);
 
     return (
         <View style={styles.screen}>
             <View style={styles.commentsSection}>
-                <Card photoURL={post.photoURL ? post.photoURL : 'NoPhoto'} style={styles.postCard} author={post.userName} content={post.content} date={post.createdAt} />
-                    <FlatList
-                        refreshing={refresh}
-                        data={commentsData}
-                        renderItem={({ item }) => (
-                            <Card photoURL={item.photoURL ? item.photoURL : 'NoPhoto'} authorStyle={styles.commentAuthorStyle} author={item.userName} content={item.comment} date={item.createdAt} />
-                        )}
-                        keyExtractor={item => item.commentId}
-                        refreshing={refresh}
-                        onRefresh={refreshHandler}
-                        ListEmptyComponent={() => (<NoData text={'No Comments Yet'} />)}
-                        contentContainerStyle={commentsData?.length === 0 && styles.emptyList}
-                    />
+                <PostCard photoURL={post.current.photoURL ? post.current.photoURL : 'NoPhoto'} uuid={uuid.current} style={styles.postCard} updateSinglePost={updateSinglePost} post={post.current} postId={post.current.postId} />
+                <FlatList
+                    refreshing={refresh}
+                    data={commentsData}
+                    renderItem={({ item }) => (
+                        <CommentCard photoURL={item.photoURL ? item.photoURL : 'NoPhoto'} authorStyle={styles.commentAuthorStyle} author={item.userName} uuid={uuid.current} reactUserId={item.reactUserId} comment={item} commentId={item.commentId} content={item.comment} date={item.createdAt} />
+                    )}
+                    keyExtractor={item => item.commentId}
+                    refreshing={refresh}
+                    onRefresh={refreshHandler}
+                    ListEmptyComponent={() => (<NoData text={'No Comments Yet'} />)}
+                    contentContainerStyle={commentsData?.length === 0 && styles.emptyList}
+                />
             </View>
             <View style={styles.addCommentContainer}>
                 <View style={styles.inputContainer}>
@@ -128,7 +157,7 @@ const styles = StyleSheet.create({
     screen: {
         flex: 1,
         justifyContent: 'space-between',
-        backgroundColor: Colors.backgroundPrimary
+        backgroundColor: Colors.backgroundPrimary,
     },
 
     emptyList: {
@@ -144,7 +173,7 @@ const styles = StyleSheet.create({
         borderBottomColor: 'rgba(0,0,0,0.1)',
         paddingVertical: 20,
         borderRadius: 0,
-        marginHorizontal: -3
+        // marginHorizontal: 5 
     },
     commentsSection: {
         flex: 10,

@@ -1,4 +1,3 @@
-import { getUserName } from '../firebaseInit';
 import * as Permissions from 'expo-permissions';
 import * as Location from 'expo-location';
 
@@ -39,15 +38,15 @@ export const uriToBlob = (uri) => {
 
 }
 
-export const updateAuthorUserName = async (queryPosts) => {
-  let updatedQuery = []
-  try {
-    updatedQuery = await getUserName(queryPosts);
-  } catch (e) {
-    console.log(e);
-  }
-  return updatedQuery;
-}
+// export const updateAuthorUserName = async (queryPosts) => {
+//   let updatedQuery = []
+//   try {
+//     updatedQuery = await getUserName(queryPosts);
+//   } catch (e) {
+//     console.log(e);
+//   }
+//   return updatedQuery;
+// }
 
 export const getLocation = async () => {
   const { status } = await Permissions.askAsync(Permissions.LOCATION);
@@ -73,4 +72,35 @@ export const getLocation = async () => {
 
   return 'Location NOT Granted';
 
+}
+
+
+export const updatePostView = (post, react, postData, uuid) => {
+     try{
+      if(react.action === 0) {
+        post.react = null;
+        post.reactionUrl = null;
+        post.reactUserId = null;
+        post.count = --post.count;
+    } else if (react.action === 1) {
+        post.react = react.reaction;
+        post.reactionUrl = react.reactionUrl;
+    } else if(react.action === 2) {
+        post.reactUserId =  uuid;
+        post.reactionUrl = react.reactionUrl;
+        post.react = react.reaction,
+        post.count = post.count >= 0 ? ++post.count : 1
+    }
+    const copyData = Object.assign([], postData);
+    for (let i = 0; i < copyData.length; i++) {
+        if (copyData[i].postId == post.postId) {
+            copyData[i] = post;
+            break;
+        }
+    }
+
+    return copyData;
+     }catch(e) {
+       console.log('uptadePostView Error: ', e)
+     }
 }

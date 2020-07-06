@@ -2,6 +2,7 @@ import React from 'react';
 import { MaterialCommunityIcons } from 'react-native-vector-icons';
 import HomeScreen from '../screens/HomeScreen';
 import ProfileScreen from '../screens/ProfileScreen';
+import Notifications from '../screens/Notifications'
 import { Colors } from '../colors/Colors'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
@@ -27,9 +28,17 @@ export default function FeedNavigation() {
 
             }} />
             <bottomTab.Screen name="Profile" component={ProfileScreen} options={{ headerShown: false }} options={{
-                tabBarLabel: 'Home',
+                tabBarLabel: 'Profile',
                 tabBarIcon: ({ color, size }) => (
                     <MaterialCommunityIcons name="account" color={color} size={size} />
+                ),
+
+            }} />
+
+            <bottomTab.Screen name="Notifications" component={Notifications} options={{ headerShown: false }} options={{
+                tabBarLabel: 'Notifications',
+                tabBarIcon: ({ color, size }) => (
+                    <MaterialCommunityIcons name="bell" color={color} size={size} />
                 ),
 
             }} />

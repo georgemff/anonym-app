@@ -24,8 +24,9 @@ const db = firebase.firestore();
 
 // export const messagging = firebase.messaging();
 export const auth = firebase.auth();
-export const helloWorldFn = firebase.functions().httpsCallable('helloWorld');
-export const getUserName = firebase.functions().httpsCallable('getUserName');
+export const queryComments = firebase.functions().httpsCallable('queryComments');
+export const queryPosts = firebase.functions().httpsCallable('queryPosts');
+export const queryUserPosts = firebase.functions().httpsCallable('queryUserPosts');
 export const storageRef = firebase.storage().ref();
 export const avatarsRef = storageRef.child('avatars')
 export const posts = db.collection('posts');
@@ -33,3 +34,5 @@ export const users = db.collection('users');
 export const comments = db.collection('comments');
 export const notificationTokens = db.collection('notificationTokens');
 export const postReactions = db.collection('postReactions');
+export const commentReactions = db.collection('commentReactions');
+export const notifications = db.collection('notifications');

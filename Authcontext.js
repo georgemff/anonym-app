@@ -4,10 +4,12 @@ import Header from './components/Header';
 import LoginNavigation from './navigation/LoginNavigation';
 import HomeNavigation from './navigation/HomeNavigation';
 import * as Permissions from 'expo-permissions';
-import { Notifications } from 'expo';
+// import * as Notifications from 'expo-notifications';
+import {Notifications} from 'expo';
 import {imageColors} from './colors/Colors';
 import { auth, users, notificationTokens } from './firebaseInit'
 export const Context = createContext();
+
 
 const AuthContext = () => {
     const [signedIn, setSignedIn] = useState(false);
@@ -50,8 +52,10 @@ const AuthContext = () => {
                             }
                             let deviceToken;
                             if (notificationPermission.granted) {
-                                // deviceToken = await Notifications.getDevicePushTokenAsync({ gcmSenderId: senderId });
-                                // saveDeviceToken(deviceToken);
+                                deviceToken = await Notifications.getDevicePushTokenAsync({gcmSenderId: senderId});
+                                if(deviceToken && deviceToken.data) {
+                                    saveDeviceToken(deviceToken);
+                                }
                             }
                             updateStatusState();
                         }
@@ -77,8 +81,6 @@ const AuthContext = () => {
                                     })
                             })
                         }
-                        // await AsyncStorage.removeItem('accessToken');
-                        // await AsyncStorage.removeItem('uuid');
                         try{
                         await AsyncStorage.multiRemove(['accessToken', 'uuid', 'region'])
                         } catch(e) {

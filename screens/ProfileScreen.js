@@ -1,32 +1,51 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { View, Text, Image, StyleSheet, Button, AsyncStorage, TouchableOpacity, FlatList } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import Constants from 'expo-constants';
 import * as Permissions from 'expo-permissions';
-import { Context } from '../Authcontext'
-import { formatDate, updateAuthorUserName } from '../helpers/Helpers'
-import { storageRef, users, posts } from '../firebaseInit';
+import { formatDate, updateAuthorUserName, updatePostView } from '../helpers/Helpers'
+import { storageRef, users, queryUserPosts, postReactions } from '../firebaseInit';
+import { useFocusEffect } from '@react-navigation/native';
 
-import Card from '../components/Card'
+
+import PostCard from '../components/postCard';
 
 import { uriToBlob } from '../helpers/Helpers';
 import AddPostButton from '../components/AddPostButton';
-import LogOutButton from '../components/LogOutButton';
 import NoData from '../components/NoData';
 import { Colors, imageColors } from '../colors/Colors';
+import { ImagePropTypes } from 'react-native';
 
 
 const ProfileScreen = ({ navigation }) => {
-  const { signOut } = useContext(Context);
   const [userInfo, setUserInfo] = useState({});
   const [userPosts, setUserPosts] = useState([]);
   const [refresh, setRefresh] = useState(false);
   const [drawer, setDrawer] = useState(true)
+  const [uuid, setUuid] = useState(undefined);
+  const userPosts1 = useRef(0)
+  useFocusEffect(
+    React.useCallback(() => {
+      getUserPosts()
+    }, [])
+  )
+  useEffect(() => {
+    AsyncStorage.getItem('uuid')
+    .then(id => setUuid(id))
+
+    if (uuid) {
+      getUserInfo();
+      getUserPosts();
+    }
+
+
+
+  }, [uuid])
+
 
 
   const getUserInfo = async () => {
     try {
-      const uuid = await AsyncStorage.getItem('uuid');
       const userSnapshot = await users.where('userId', '==', uuid).get()
       let userData = {};
       userSnapshot.forEach((doc) => {
@@ -40,7 +59,7 @@ const ProfileScreen = ({ navigation }) => {
   }
 
   const refreshHandler = () => {
-    getUsetPosts();
+    getUserPosts();
   }
 
 
@@ -55,7 +74,6 @@ const ProfileScreen = ({ navigation }) => {
 
   const _pickImage = async () => {
     getPermissionAsync();
-    const uuid = await AsyncStorage.getItem('uuid');
     try {
       ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.All,
@@ -84,7 +102,7 @@ const ProfileScreen = ({ navigation }) => {
                     })
                       .then(r => {
                         getUserInfo();
-                        getUsetPosts();
+                        getUserPosts();
                       })
                       .catch(e => {
                         console.log(e)
@@ -102,46 +120,45 @@ const ProfileScreen = ({ navigation }) => {
     }
   };
 
-  const getUsetPosts = async () => {
-    setRefresh(true)
-    const uuid = await AsyncStorage.getItem('uuid');
+  const getUserPosts = async () => {
 
     try {
-      const queryPosts = await posts.where('userId', '==', uuid).orderBy('createdAt', 'desc')
-        .get();
+      setRefresh(true)
 
-      let queryData = [];
-      queryPosts.forEach((doc) => {
-        let post = doc.data();
-        post.createdAt = formatDate(post.createdAt)
-        post.postId = doc.id;
-        queryData.push(post);
-      })
-      const updatedQueryData = await updateAuthorUserName(queryData);
-      setUserPosts(updatedQueryData.data);
+      let uuid = await AsyncStorage.getItem('uuid');
+      const updatedQueryData = await queryUserPosts({ uuid });
+
+      userPosts1.current = updatedQueryData.data; 
       setRefresh(false)
     }
     catch (e) {
       console.log(e)
     }
   }
+
+  const updateSinglePost = (post, react) => {
+
+    try {
+        setRefresh(true)
+        
+        const updatedData = updatePostView(post, react, userPosts1.current, uuid);
+        userPosts1.current = [];
+        userPosts1.current = updatedData;
+
+        setRefresh(false)
+    } catch (e) {
+        console.log(e)
+    }
+}
+
+
   const getPostDetails = (item) => {
     navigation.navigate('PostDetails', { post: item })
   }
 
   const addPostNavigationHandler = () => {
-    navigation.navigate('AddPost', { postAdd: getUsetPosts })
+    navigation.navigate('AddPost', { postAdd: getUserPosts })
   }
-
-
-  useEffect(() => {
-    getUserInfo();
-    getUsetPosts();
-
-    return () => {
-
-    }
-  }, [])
 
   return (
     <View style={styles.screen}>
@@ -149,9 +166,9 @@ const ProfileScreen = ({ navigation }) => {
         <TouchableOpacity onPress={() => { _pickImage() }}>
           {
             imageColors.includes(userInfo.photoURL) ?
-              <View style={{...styles.profilePicture, backgroundColor: userInfo.photoURL, justifyContent: 'center', alignItems: 'center'}}>
-                <Text style={{color: Colors.textPrimary, fontSize: 38}}>{userInfo.userName[0].toUpperCase()}</Text>
-                </View>
+              <View style={{ ...styles.profilePicture, backgroundColor: userInfo.photoURL, justifyContent: 'center', alignItems: 'center' }}>
+                <Text style={{ color: Colors.textPrimary, fontSize: 38 }}>{userInfo.userName[0].toUpperCase()}</Text>
+              </View>
               :
               <Image source={{ uri: userInfo.photoURL ? userInfo.photoURL : 'NoPhoto' }} style={styles.profilePicture} />
 
@@ -165,23 +182,18 @@ const ProfileScreen = ({ navigation }) => {
       </View>
       <View style={{ flex: 1 }}>
         <FlatList
-          data={userPosts}
+          data={userPosts1.current}
           renderItem={({ item }) => (
-            <TouchableOpacity onPress={() => { getPostDetails(item) }} activeOpacity={0.8}>
-              <Card photoURL={item.photoURL ? item.photoURL : 'NoPhoto'} author={item.userName} content={item.content} date={item.createdAt} />
-            </TouchableOpacity>
+            <PostCard photoURL={item.photoURL ? item.photoURL : 'NoPhoto'} uuid={uuid} postId={item.postId} count={item.count} reactUserId={item.reactUserId} author={item.userName} content={item.content} date={item.createdAt} postDetails={getPostDetails} updateSinglePost={updateSinglePost} post={item} />
           )}
           keyExtractor={item => item.postId}
           refreshing={refresh}
           onRefresh={refreshHandler}
-          contentContainerStyle={userPosts?.length === 0 && styles.emptyList}
+          contentContainerStyle={userPosts1.current?.length === 0 && styles.emptyList}
           ListEmptyComponent={() => (<NoData text={'No Posts Yet'} />)}
         />
         <AddPostButton style={{ right: '5%' }} event={addPostNavigationHandler} />
-        {/* <LogOutButton style={{left: '5%'}} event={signOut}/> */}
-
       </View>
-
     </View>
   )
 }

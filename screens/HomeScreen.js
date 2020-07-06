@@ -1,68 +1,70 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
     View,
     StyleSheet,
     Text,
-    Button,
     TouchableHighlight,
     FlatList,
     AsyncStorage,
-    TouchableOpacity,
     Modal
 } from 'react-native';
-import Card from '../components/Card';
+import PostCard from '../components/postCard';
 import { Colors } from '../colors/Colors';
 import { Icon } from 'react-native-elements';
-import { posts, comments } from '../firebaseInit'
+import { posts, comments, queryPosts, postReactions } from '../firebaseInit'
 import { connect } from 'react-redux';
-import { formatDate, updateAuthorUserName } from '../helpers/Helpers'
 import AddPostButton from '../components/AddPostButton';
 import NoData from '../components/NoData';
+import { updatePostView } from '../helpers/Helpers';
 
 const HomeScreen = (props) => {
+   
     const [modalVisible, setModalVisible] = useState(false)
     const [refresh, setRefresh] = useState(false);
     const [postData, setPostData] = useState([]);
     const [postId, setPostId] = useState('');
-    const [postView, setPostView] = useState('local');
- 
-    if (props.postView !== postView) {
-        setPostView(props.postView);
-    }
+    const [uuid, setUuid] = useState(undefined);
+    const [updatingPost, setUpdatingPost] = useState(false);
+    const postData1 = useRef(0)
+    
 
     useEffect(() => {
-        if (props.postViewProp && postView !== props.postViewProp) {
-            setPostView(props.postView.postView)
-        }
+        console.log('useEffect')
+        AsyncStorage.getItem('uuid')
+            .then(id => {
+                setUuid(id);
+            })
         getPosts();
-        return () => {
-
-        }
-    }, [postView]);
+    }, [props.postView]);
 
     const refreshHandler = () => {
         getPosts();
     }
 
+    const updateSinglePost = (post, react) => {
+
+        try {
+            setRefresh(true)
+            
+            const updatedData = updatePostView(post, react, postData1.current, uuid);
+            postData1.current = [];
+            postData1.current = updatedData;
+
+            setUpdatingPost(!updatingPost)
+            setRefresh(false)
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
     const getPosts = async () => {
         try {
             setRefresh(true);
-            let queryData = [];
             const region = await AsyncStorage.getItem('region');
-            let postsQuery;
-            if (postView === 'local') {
-                postsQuery = await posts.where('region', '==', region).orderBy('createdAt', 'desc').get();
-            } else if (postView === 'global') {
-                postsQuery = await posts.orderBy('createdAt', 'desc').get();
-            }
-            postsQuery?.forEach((doc) => {
-                let post = doc.data();
-                post.createdAt = formatDate(post.createdAt)
-                post.postId = doc.id;
-                queryData.push(post);
-            });
-            const updatedQueryData = await updateAuthorUserName(queryData);
-            setPostData(updatedQueryData.data);
+            const uuid = await AsyncStorage.getItem('uuid');
+            const updatedQueryData = await queryPosts({ target: props.postView, region, uuid });
+            // setPostData(updatedQueryData.data);
+            postData1.current = updatedQueryData.data
             setRefresh(false);
         } catch (e) {
             console.log(e)
@@ -105,7 +107,7 @@ const HomeScreen = (props) => {
             <Modal
                 animationType="fade"
                 transparent={true}
-                visible={modalVisible}
+                visible={modalVisible}   
                 onRequestClose={() => (setModalVisible(false))}
                 onPress={() => (setModalVisible(false))}
             >
@@ -134,7 +136,7 @@ const HomeScreen = (props) => {
             </Modal>
             {/* Modal End */}
             {
-                postView === 'local' ?
+                props.postView === 'local' ?
                     <View style={styles.postViewAlert}>
                         <Icon name="place" size={20} color={Colors.textPrimary} />
                         <Text style={{ color: Colors.textPrimary, fontSize: 16, marginLeft: 5 }}>Local</Text>
@@ -147,15 +149,17 @@ const HomeScreen = (props) => {
                     </View>
             }
             <FlatList
-                data={postData}
+                data={postData1.current}
                 renderItem={({ item }) => (
-                        <Card photoURL={item.photoURL ? item.photoURL : 'NoPhoto'} postId={item.postId} author={item.userName} content={item.content} date={item.createdAt} />
+                    <PostCard photoURL={item.photoURL ? item.photoURL : 'NoPhoto'} uuid={uuid} postId={item.postId} updateSinglePost={updateSinglePost} postDetails={getPostDetails} post={item} />
                 )}
+                extraData={refresh}
                 keyExtractor={item => item.postId}
                 refreshing={refresh}
                 onRefresh={refreshHandler}
-                contentContainerStyle={postData?.length === 0 && styles.emptyList}
-                ListEmptyComponent={() => (<NoData text={'No Posts Yet'} />)} />
+                contentContainerStyle={postData1.current?.length === 0 && styles.emptyList}
+                ListEmptyComponent={() => (<NoData text={'No Posts Yet'} />)}
+                 />
             <AddPostButton event={addPostNavigationHandler} />
 
         </View>
@@ -251,7 +255,6 @@ const styles = StyleSheet.create({
 
 const mapStateToProps = (state) => {
     return {
-        Test: "WTF",
         postView: state.postView.postView
     }
 }
