@@ -12,11 +12,12 @@ export const images = [
     { id: 'sad', img: "https://firebasestorage.googleapis.com/v0/b/anonymapp-8e15d.appspot.com/o/reactions%2Fsad.png?alt=media&token=b1a09d5f-7ecf-4db2-8b5b-87a73e59fe31" },
     { id: 'wtf', img: "https://firebasestorage.googleapis.com/v0/b/anonymapp-8e15d.appspot.com/o/reactions%2Fwtf.png?alt=media&token=b3ee121d-1a70-450e-ac81-93a47ed11958" }
 ]
-import { postReactions } from '../firebaseInit';
+import { postReactions, storageRef } from '../firebaseInit';
 const PostCard = props => {
     const [selected, setSelected] = useState('');
     const [open, setOpen] = useState(false);
     const [isOpened, setIsOpened] = useState(false);
+    const [popUp, setPopup] = useState(false);
     global._imgLayouts = {};
     global._scaleAnimation = new Animated.Value(0);
     global._imageAnimations = {};
@@ -34,12 +35,11 @@ const PostCard = props => {
         // Ask to be the responder:
         onStartShouldSetPanResponder: (evt, { gestureState }) => true,
         onStartShouldSetPanResponderCapture: (evt, { dx, dy }) => {
-                return Math.abs(dx) < 20;
+            return Math.abs(dx) < 20;
         },
         onMoveShouldSetPanResponder: (evt, gestureState) => true,
         onMoveShouldSetPanResponderCapture: (evt, gestureState) => true,
         onPanResponderGrant: (evt, getstureState) => {
-            console.log('tap')
             openReactsInterval = setTimeout(() => {
                 Animated.parallel([
                     Animated.timing(_scaleAnimation, {
@@ -68,7 +68,6 @@ const PostCard = props => {
         onPanResponderEnd: (evt, gestureState) => {
             try {
                 clearTimeout(openReactsInterval);
-                console.log('open', open)
                 if (_hoveredImg) {
                     addReactionToPost(_hoveredImg);
                 } else if (!isOpened) {
@@ -103,27 +102,6 @@ const PostCard = props => {
             })
         });
     }
-    // const openReactions = () => {
-    //     console.log('open')
-    //     Animated.parallel([
-    //         Animated.timing(_scaleAnimation, {
-    //             duration: 100,
-    //             toValue: 1
-    //         }),
-    //         Animated.stagger(50, getImageAnimationArray(0))
-    //     ]).start(() => setOpen(true));
-    // }
-    // const close = (cb) => {
-    //     this.setState({ open: false }, () => {
-    //         Animated.stagger(100, [
-    //             Animated.parallel(this.getImageAnimationArray(55, 0).reverse()),
-    //             Animated.timing(_scaleAnimation, {
-    //                 duration: 100,
-    //                 toValue: 0
-    //             })
-    //         ]).start(cb);
-    //     })
-    // }
 
     const animateSelected = (imgAnimations) => {
         Animated.parallel([
@@ -189,10 +167,6 @@ const PostCard = props => {
             setIsOpened(false);
             const userId = await AsyncStorage.getItem('uuid');
             const userHasReacted = props.post.reactUserId === userId;
-            // const userHasReacted = await postReactions
-            //                             .where('userId', '==', userId)
-            //                             .where('postId', '==', props.postId)
-            //                             .get();
             let reactionUrl = 'default';
             if (hoveredImg !== null) {
                 reactionUrl = images.filter((img) => (
@@ -201,27 +175,22 @@ const PostCard = props => {
             }
             let alreadyReacted = false;
             if (userHasReacted) {
-                // for (i in userHasReacted.docs) {
-                    // if (userHasReacted.docs[i].data().reaction !== hoveredImg) {
-                        if (props.post.react !== hoveredImg) {
-                        if (hoveredImg == null) {
-                            updateSinglePost({reaction: null, reactionUrl: null, action: 0});
-                            // await userHasReacted.docs[i].ref.delete();
-                             postReactions
-                                        .where('userId', '==', userId)
-                                        .where('postId', '==', props.postId)
-                                        .get()
-                                        .then(snapshot => {
-                                            snapshot.forEach(doc => {
-                                                doc.ref.delete();
-                                            })
-                                        })
-                            console.log('deleted')
-                            alreadyReacted = true;
-                            // break;
-                        }
-                        updateSinglePost({reaction: hoveredImg, reactionUrl, action: 1});
+                if (props.post.react !== hoveredImg) {
+                    if (hoveredImg == null) {
+                        updateSinglePost({ reaction: null, reactionUrl: null, action: 0 });
                         postReactions
+                            .where('userId', '==', userId)
+                            .where('postId', '==', props.postId)
+                            .get()
+                            .then(snapshot => {
+                                snapshot.forEach(doc => {
+                                    doc.ref.delete();
+                                })
+                            })
+                        alreadyReacted = true;
+                    }
+                    updateSinglePost({ reaction: hoveredImg, reactionUrl, action: 1 });
+                    postReactions
                         .where('userId', '==', userId)
                         .where('postId', '==', props.postId)
                         .get()
@@ -233,18 +202,10 @@ const PostCard = props => {
                                 });
                             })
                         })
-                        // await userHasReacted.docs[i].ref.update({
-                        //     reaction: hoveredImg,
-                        //     reactionUrl: reactionUrl
-                        // })
-                        alreadyReacted = true;
-                        // break;
-                    // } else if (userHasReacted.docs[i].data().reaction === hoveredImg) {
-                    } else if (props.post.react === hoveredImg) {
-                        alreadyReacted = true;
-                        // break;
-                    }
-                // }
+                    alreadyReacted = true;
+                } else if (props.post.react === hoveredImg) {
+                    alreadyReacted = true;
+                }
             }
 
             if (alreadyReacted)
@@ -254,7 +215,7 @@ const PostCard = props => {
                 hoveredImg = 'like';
             }
 
-            updateSinglePost({reaction: hoveredImg, reactionUrl, postId: props.postId, action: 2});
+            updateSinglePost({ reaction: hoveredImg, reactionUrl, postId: props.postId, action: 2 });
 
             postReactions.add({
                 postId: props.postId,
@@ -266,7 +227,7 @@ const PostCard = props => {
                 })
                 .catch((e) => {
                     console.log(e)
-                    updateSinglePost({reaction: null, reactionUrl: null, action: 0});
+                    updateSinglePost({ reaction: null, reactionUrl: null, action: 0 });
                 })
         } catch (e) {
             console.log(e)
@@ -310,69 +271,105 @@ const PostCard = props => {
 
         }
     }
+
+    const getImageSize = (size) => {
+        if (size) {
+            return (parseInt(size) - (parseInt(size) * 0.03));
+        }
+        return 0
+    }
+
+    const dotsPressed = () => {
+        setPopup(!popUp);
+        console.log('pressed');
+    }
     return (
-        <View style={styles.container} removeClippedSubviews={true} setClip>
-            {/* {        open && <TouchableOpacity style={{zIndex: 500, width: '1000%', height: 100000, position:'absolute', bottom: '-1000%', left: 0, backgroundColor: 'rgba(255,255,255,0.7)'}} onPress={() =>  (setOpen(false))}></TouchableOpacity>} */}
+        <TouchableOpacity activeOpacity={1} onPressOut={() => {setPopup(false)}}>
+            <View style={styles.container} removeClippedSubviews={true} setClip>
+                <View style={{ ...styles.card, ...props.style }}>
+                    <View style={styles.authorImage}>
+                        <View style={{ flexDirection: 'row' }}>
+                            {
+                                imageColors.includes(props.post.photoURL) ?
+                                    <View style={{ ...styles.image, backgroundColor: props.post.photoURL, justifyContent: 'center', alignItems: 'center' }}><Text style={{ fontSize: 22, color: Colors.textPrimary }}>{props.post.userName[0].toUpperCase()}</Text></View>
+                                    :
+                                    <Image source={{ uri: props.post.photoURL }} style={styles.image} />
 
-            <View style={{ ...styles.card, ...props.style }}>
-                <View style={styles.authorImage}>
-                    {
-                        imageColors.includes(props.post.photoURL) ?
-                            <View style={{ ...styles.image, backgroundColor: props.post.photoURL, justifyContent: 'center', alignItems: 'center' }}><Text style={{ fontSize: 22, color: Colors.textPrimary }}>{props.post.userName[0].toUpperCase()}</Text></View>
-                            :
-                            <Image source={{ uri: props.post.photoURL }} style={styles.image} />
-
-                    }
-                </View>
-                <View>
-                    <Text style={{ ...styles.author, ...props.authorStyle }}>{props.post.userName}</Text>
-                    <View></View>
-                    <View style={styles.dateContainer}>
-                        <Text style={styles.date}>{formatDate(props.post.createdAt)}</Text>
-                    </View>
-                    <View style={styles.contentContainer}>
-                        <Text style={styles.postContent}>{props.post.content}</Text>
-                    </View>
-                </View>
-            </View>
-            <View style={{ paddingHorizontal: 7 }}>{
-                props.post.count > 0 ?
-                    <Text style={{ color: Colors.date, fontSize: 12 }}>
-                        {props.post.count} reactions
-                </Text>
-                    : null
-
-            }
-            </View>
-            <View style={{ flexDirection: 'row' }}>
-                <View style={{ position: 'relative', flex: 1 }}>
-                    <Animated.View {...panResponder.panHandlers} style={{ ...getLikeContainerStyle(), ...{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', zIndex: 500, paddingHorizontal: 7, paddingVertical: 10, } }} >
-                        {
-                            open &&
-                            <View style={{ flexDirection: 'row', position: 'absolute', bottom: '150%', left: 10, zIndex: 500 }}>
-                                {getImages()}
-                            </View>
-                        }
-
-                        {
-                            props.post.reactUserId === props.uuid && getUserReaction() !== null ?
-                                getUserReaction()
-                                :
-                                <View style={{ flexDirection: 'row' }}>
-                                    <Icon name="like" type="evilicon" color={props.post.reactUserId === props.uuid ? Colors.activeTab : Colors.textPrimary} />
-                                    <Text style={{ color: props.post.reactUserId === props.uuid ? Colors.activeTab : Colors.textPrimary }}>Like</Text>
+                            }
+                            <View>
+                                <Text style={{ ...styles.author, ...props.authorStyle }}>{props.post.userName}</Text>
+                                <View></View>
+                                <View style={styles.dateContainer}>
+                                    <Text style={styles.date}>{formatDate(props.post.createdAt)}</Text>
                                 </View>
+                            </View>
+                        </View>
+                        <TouchableOpacity activeOpacity={1} onPress={dotsPressed}>
+                            <Icon name="dots-three-vertical" type="entypo" color={Colors.textPrimary} size={15} />
+                        </TouchableOpacity>
 
-                        }
+                        {/* {
+                            popUp &&
+                            <View style={styles.popUp}>
+                                <TouchableOpacity><Text style={{ color: Colors.textPrimary }}>Delete</Text></TouchableOpacity>
+                            </View>
+                        } */}
+                    </View>
+                    <View>
 
-                    </Animated.View>
+                        <View style={styles.contentContainer}>
+                            {
+                                props.post.content ?
+                                    <Text style={styles.postContent}>{props.post.content}</Text>
+                                    : null
+                            }
+                            {
+                                props.post.imageUrl ?
+                                    <Image source={{ uri: props.post.imageUrl }} style={{ width: getImageSize(props.post.width), height: getImageSize(props.post.height), zIndex: -100 }} />
+                                    : null
+                            }
+                        </View>
+                    </View>
                 </View>
-                <TouchableOpacity style={{ paddingHorizontal: 7, paddingVertical: 10, flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }} onPress={goToDetails}>
-                    <Icon name="comment" type="evilicon" color={Colors.textPrimary} />
-                    <Text style={{ color: Colors.textPrimary }}>Comment</Text>
-                </TouchableOpacity>
+                <View style={{ paddingHorizontal: 7 }}>{
+                    props.post.count > 0 ?
+                        <Text style={{ color: Colors.date, fontSize: 12 }}>
+                            {props.post.count} reactions
+                </Text>
+                        : null
+
+                }
+                </View>
+                <View style={{ flexDirection: 'row' }}>
+                    <View style={{ position: 'relative', flex: 1 }}>
+                        <Animated.View {...panResponder.panHandlers} style={{ ...getLikeContainerStyle(), ...{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', zIndex: 500, paddingHorizontal: 7, paddingVertical: 10, } }} >
+                            {
+                                open &&
+                                <View style={{ flexDirection: 'row', position: 'absolute', bottom: '150%', left: 10, zIndex: 500 }}>
+                                    {getImages()}
+                                </View>
+                            }
+
+                            {
+                                props.post.reactUserId === props.uuid && getUserReaction() !== null ?
+                                    getUserReaction()
+                                    :
+                                    <View style={{ flexDirection: 'row' }}>
+                                        <Icon name="like" type="evilicon" color={props.post.reactUserId === props.uuid ? Colors.activeTab : Colors.textPrimary} />
+                                        <Text style={{ color: props.post.reactUserId === props.uuid ? Colors.activeTab : Colors.textPrimary }}>Like</Text>
+                                    </View>
+
+                            }
+
+                        </Animated.View>
+                    </View>
+                    <TouchableOpacity style={{ paddingHorizontal: 7, paddingVertical: 10, flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }} onPress={goToDetails}>
+                        <Icon name="comment" type="evilicon" color={Colors.textPrimary} />
+                        <Text style={{ color: Colors.textPrimary }}>Comment</Text>
+                    </TouchableOpacity>
+                </View>
             </View>
-        </View>
+        </TouchableOpacity>
     )
 }
 
@@ -389,7 +386,6 @@ const styles = StyleSheet.create({
         padding: 7,
         justifyContent: 'flex-start',
         alignItems: 'flex-start',
-        flexDirection: 'row',
         marginVertical: 5,
         marginHorizontal: 0,
         shadowColor: 'black',
@@ -413,11 +409,14 @@ const styles = StyleSheet.create({
 
     },
     postContent: {
-        color: Colors.textPrimary
+        color: Colors.textPrimary,
+        marginBottom: 5
     },
     authorImage: {
+        width: '100%',
+        flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'space-between',
         backgroundColor: 'transparent',
         paddingTop: 7
     },
@@ -428,6 +427,16 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0,0,0,.1)',
         marginRight: 7
     },
+    popUp: {
+        position: 'absolute',
+        top: 19,
+        right: 20,
+        zIndex: 1111,
+        width: 100,
+        height: 80,
+        padding: 7,
+        backgroundColor: Colors.backgroundPrimary,
+    }
 });
 
 export default PostCard;

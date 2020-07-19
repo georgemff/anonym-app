@@ -33,6 +33,9 @@ export default function HomeNavigation() {
                 headerTintColor: Colors.textPrimary,
                 headerLeft: () => (
                     <BackButton />
+                ),
+                headerRight: () => (
+                    <BackButton />
                 )
             }} name="AddPost" component={AddPost} />
         </Home.Navigator>

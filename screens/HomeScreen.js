@@ -29,7 +29,6 @@ const HomeScreen = (props) => {
     
 
     useEffect(() => {
-        console.log('useEffect')
         AsyncStorage.getItem('uuid')
             .then(id => {
                 setUuid(id);

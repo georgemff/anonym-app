@@ -1,9 +1,9 @@
 import React from 'react'
 import { View, StyleSheet } from 'react-native';
 import Textarea from '../components/Textarea';
-import {Colors} from '../colors/Colors';
+import { Colors } from '../colors/Colors';
 const AddPost = ({ route, navigation }) => {
-    const {postAdd} = route.params; 
+    const { postAdd } = route.params;
 
     const postAddHandler = () => {
         postAdd();
@@ -20,9 +20,7 @@ const AddPost = ({ route, navigation }) => {
 const styles = StyleSheet.create({
     screen: {
         flex: 1,
-        justifyContent: 'space-between',
         backgroundColor: Colors.backgroundPrimary,
-        
     },
 });
 
