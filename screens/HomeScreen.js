@@ -3,7 +3,7 @@ import {
     View,
     StyleSheet,
     Text,
-    TouchableHighlight,
+    TouchableOpacity,
     FlatList,
     AsyncStorage,
     Modal
@@ -18,15 +18,15 @@ import NoData from '../components/NoData';
 import { updatePostView } from '../helpers/Helpers';
 
 const HomeScreen = (props) => {
-   
+
     const [modalVisible, setModalVisible] = useState(false)
     const [refresh, setRefresh] = useState(false);
     const [postData, setPostData] = useState([]);
-    const [postId, setPostId] = useState('');
+    const currentPostId = useRef('');
     const [uuid, setUuid] = useState(undefined);
     const [updatingPost, setUpdatingPost] = useState(false);
     const postData1 = useRef(0)
-    
+
 
     useEffect(() => {
         AsyncStorage.getItem('uuid')
@@ -44,7 +44,7 @@ const HomeScreen = (props) => {
 
         try {
             setRefresh(true)
-            
+
             const updatedData = updatePostView(post, react, postData1.current, uuid);
             postData1.current = [];
             postData1.current = updatedData;
@@ -74,14 +74,14 @@ const HomeScreen = (props) => {
         const uuid = await AsyncStorage.getItem('uuid');
         if (userId == uuid) {
             setModalVisible(true);
-            setPostId(postId)
+            currentPostId.current = postId;
         }
     }
 
     const deletePost = async () => {
         try {
-            await posts.doc(postId).delete();
-            const postRelatedCommentsSnapshot = await comments.where('postId', '==', postId).get();
+            await posts.doc(currentPostId.current).delete();
+            const postRelatedCommentsSnapshot = await comments.where('postId', '==', currentPostId.current).get();
             postRelatedCommentsSnapshot.forEach(doc => {
                 doc.ref.delete();
             })
@@ -103,36 +103,18 @@ const HomeScreen = (props) => {
     return (
         <View style={styles.screen}>
             {/* Modal Start */}
-            <Modal
-                animationType="fade"
-                transparent={true}
-                visible={modalVisible}   
-                onRequestClose={() => (setModalVisible(false))}
-                onPress={() => (setModalVisible(false))}
-            >
-                <View style={styles.centeredView}>
-                    <View style={styles.modalView}>
-                        <Text style={styles.modalText}>You really want to delete this post?</Text>
-
-                        <View style={styles.modalButtonContainer}>
-                            <TouchableHighlight
-                                style={{ ...styles.openButton, backgroundColor: Colors.danger, width: 80 }}
-                                onPress={() => {
-                                    setModalVisible(!modalVisible);
-                                }}
-                            >
-                                <Text style={styles.textStyle}>Nope</Text>
-                            </TouchableHighlight>
-                            <TouchableHighlight
-                                style={{ ...styles.openButton, backgroundColor: Colors.buttomPrimary, width: 80 }}
-                                onPress={deletePost}
-                            >
-                                <Text style={styles.textStyle}>Yup!</Text>
-                            </TouchableHighlight>
+            {
+                <Modal transparent={true} animationType="slide" visible={modalVisible}>
+                    <TouchableOpacity style={{height: '100%', backgroundColor: 'rgba(0,0,0,0.5)'}} activeOpacity={1} onPressOut={() => {setModalVisible(false)}}>
+                        <View style={styles.popUp}>
+                            <TouchableOpacity style={styles.removePostButton} onPress={deletePost}>
+                                <Icon name="delete" type="materialicons" width={20} color={Colors.textPrimary} />
+                                <Text style={styles.popUpRemoveText}>Delete</Text>
+                            </TouchableOpacity>
                         </View>
-                    </View>
-                </View>
-            </Modal>
+                    </TouchableOpacity>
+                </Modal>
+            }
             {/* Modal End */}
             {
                 props.postView === 'local' ?
@@ -150,7 +132,7 @@ const HomeScreen = (props) => {
             <FlatList
                 data={postData1.current}
                 renderItem={({ item }) => (
-                    <PostCard photoURL={item.photoURL ? item.photoURL : 'NoPhoto'} uuid={uuid} postId={item.postId} updateSinglePost={updateSinglePost} postDetails={getPostDetails} post={item} />
+                    <PostCard photoURL={item.photoURL ? item.photoURL : 'NoPhoto'} uuid={uuid} postId={item.postId} updateSinglePost={updateSinglePost} postDetails={getPostDetails} post={item} showModal={showModal} />
                 )}
                 extraData={refresh}
                 keyExtractor={item => item.postId}
@@ -158,7 +140,7 @@ const HomeScreen = (props) => {
                 onRefresh={refreshHandler}
                 contentContainerStyle={postData1.current?.length === 0 && styles.emptyList}
                 ListEmptyComponent={() => (<NoData text={'No Posts Yet'} />)}
-                 />
+            />
             <AddPostButton event={addPostNavigationHandler} />
 
         </View>
@@ -249,6 +231,30 @@ const styles = StyleSheet.create({
         paddingHorizontal: 5,
         backgroundColor: Colors.primary,
         marginTop: 5
+    },
+    popUp: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        paddingHorizontal: 10,
+        paddingTop: 20,
+        paddingBottom: 100,
+        backgroundColor: Colors.primary,
+        // width: '100%',
+        zIndex: 999,
+        borderTopLeftRadius: 15,
+        borderTopRightRadius: 15
+    },
+    removePostButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        zIndex: 999999
+    },
+    popUpRemoveText: {
+        color: Colors.textPrimary,
+        fontSize: 16,
+        marginLeft: 10
     }
 });
 

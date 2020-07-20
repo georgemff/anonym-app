@@ -281,6 +281,7 @@ const PostCard = props => {
 
     const dotsPressed = () => {
         setPopup(!popUp);
+        props.showModal(props.post.userId, props.post.postId);
         console.log('pressed');
     }
     return (
@@ -305,7 +306,7 @@ const PostCard = props => {
                             </View>
                         </View>
                         <TouchableOpacity activeOpacity={1} onPress={dotsPressed}>
-                            <Icon name="dots-three-vertical" type="entypo" color={Colors.textPrimary} size={15} />
+                            <Icon name="dots-horizontal" type="material-community" color={Colors.textPrimary} size={25} />
                         </TouchableOpacity>
 
                         {/* {
@@ -415,7 +416,6 @@ const styles = StyleSheet.create({
     authorImage: {
         width: '100%',
         flexDirection: 'row',
-        alignItems: 'center',
         justifyContent: 'space-between',
         backgroundColor: 'transparent',
         paddingTop: 7
