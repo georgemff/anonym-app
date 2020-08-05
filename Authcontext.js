@@ -1,12 +1,11 @@
-import React, { useState, createContext, useMemo, useContext } from 'react';
+import React, { useState, createContext, useMemo } from 'react';
 import { AsyncStorage, View, Text, StyleSheet } from 'react-native';
 import Header from './components/Header';
 import LoginNavigation from './navigation/LoginNavigation';
 import HomeNavigation from './navigation/HomeNavigation';
 import * as Permissions from 'expo-permissions';
-// import * as Notifications from 'expo-notifications';
-import {Notifications} from 'expo';
-import {imageColors} from './colors/Colors';
+import { Notifications } from 'expo';
+import { imageColors } from './colors/Colors';
 import { auth, users, notificationTokens } from './firebaseInit'
 export const Context = createContext();
 
@@ -23,7 +22,7 @@ const AuthContext = () => {
     }, []);
     const randomInteger = () => {
         return Math.floor(Math.random() * (4 - 0 + 1)) + 0;
-      }
+    }
     const authContext = useMemo(() => (
         {
             signIn: async data => {
@@ -42,8 +41,8 @@ const AuthContext = () => {
                                 userSnapshot.forEach(doc => {
                                     user = doc.data();
                                 });
-                                if(user && user.region) {
-                                await AsyncStorage.setItem('region', user.region);
+                                if (user && user.region) {
+                                    await AsyncStorage.setItem('region', user.region);
                                 }
                             }
                             let notificationPermission = await Permissions.getAsync(Permissions.NOTIFICATIONS);
@@ -52,8 +51,8 @@ const AuthContext = () => {
                             }
                             let deviceToken;
                             if (notificationPermission.granted) {
-                                deviceToken = await Notifications.getDevicePushTokenAsync({gcmSenderId: senderId});
-                                if(deviceToken && deviceToken.data) {
+                                deviceToken = await Notifications.getDevicePushTokenAsync({ gcmSenderId: senderId });
+                                if (deviceToken && deviceToken.data) {
                                     saveDeviceToken(deviceToken);
                                 }
                             }
@@ -81,9 +80,9 @@ const AuthContext = () => {
                                     })
                             })
                         }
-                        try{
-                        await AsyncStorage.multiRemove(['accessToken', 'uuid', 'region'])
-                        } catch(e) {
+                        try {
+                            await AsyncStorage.multiRemove(['accessToken', 'uuid', 'region'])
+                        } catch (e) {
                             console.log(e)
                         }
                         updateStatusState();

@@ -7,13 +7,16 @@ import FeedNavigation from './FeedNavigation';
 import { Colors } from '../colors/Colors';
 import LogOutButton from '../components/LogOutButton'
 import ExpandedButton from '../components/ExpandedButton';
+import CreateCommunityButton from '../components/createCommunityButton';
+import CreateCommunity from '../screens/CreateCommunity';
+import BackButton from '../components/backButton';
 const Drawer = createDrawerNavigator();
 
 
 export default function DrawerNavigation() {
     return (
         <Drawer.Navigator
-        initialRouteName="Home"
+            initialRouteName="Home"
             drawerStyle={{ flex: 1, justifyContent: 'center', backgroundColor: Colors.primary }}
             drawerContent={(props) => {
                 return (
@@ -21,6 +24,7 @@ export default function DrawerNavigation() {
                         <SafeAreaView>
                             {/* <DrawerItemList {...props} /> */}
                             <ExpandedButton props={props} />
+                            <CreateCommunityButton />
                         </SafeAreaView>
                         <View style={{ flex: 1, justifyContent: 'flex-end' }}>
                             <LogOutButton />
@@ -34,6 +38,7 @@ export default function DrawerNavigation() {
                         (<Icon name="home" size={24} color={Colors.activeTab} />)
                 }}
                 component={FeedNavigation} />
+           
         </Drawer.Navigator>
     )
 }

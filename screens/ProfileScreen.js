@@ -1,28 +1,25 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { View, Text, Image, StyleSheet, Button, AsyncStorage, TouchableOpacity, FlatList } from 'react-native';
+import { View, Text, Image, StyleSheet, Modal, AsyncStorage, TouchableOpacity, FlatList } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import Constants from 'expo-constants';
 import * as Permissions from 'expo-permissions';
-import { formatDate, updateAuthorUserName, updatePostView } from '../helpers/Helpers'
-import { storageRef, users, queryUserPosts, postReactions } from '../firebaseInit';
+import { Icon } from 'react-native-elements';
+import { updatePostView } from '../helpers/Helpers'
+import { storageRef, users, queryUserPosts, posts, comments } from '../firebaseInit';
 import { useFocusEffect } from '@react-navigation/native';
-
-
 import PostCard from '../components/postCard';
-
 import { uriToBlob } from '../helpers/Helpers';
 import AddPostButton from '../components/AddPostButton';
 import NoData from '../components/NoData';
 import { Colors, imageColors } from '../colors/Colors';
-import { ImagePropTypes } from 'react-native';
 
 
 const ProfileScreen = ({ navigation }) => {
   const [userInfo, setUserInfo] = useState({});
-  const [userPosts, setUserPosts] = useState([]);
   const [refresh, setRefresh] = useState(false);
-  const [drawer, setDrawer] = useState(true)
+  const [modalVisible, setModalVisible] = useState(false)
   const [uuid, setUuid] = useState(undefined);
+  const currentPostId = useRef('')
   const userPosts1 = useRef(0)
   useFocusEffect(
     React.useCallback(() => {
@@ -31,15 +28,12 @@ const ProfileScreen = ({ navigation }) => {
   )
   useEffect(() => {
     AsyncStorage.getItem('uuid')
-    .then(id => setUuid(id))
+      .then(id => setUuid(id))
 
     if (uuid) {
       getUserInfo();
       getUserPosts();
     }
-
-
-
   }, [uuid])
 
 
@@ -128,7 +122,7 @@ const ProfileScreen = ({ navigation }) => {
       let uuid = await AsyncStorage.getItem('uuid');
       const updatedQueryData = await queryUserPosts({ uuid });
 
-      userPosts1.current = updatedQueryData.data; 
+      userPosts1.current = updatedQueryData.data;
       setRefresh(false)
     }
     catch (e) {
@@ -139,17 +133,17 @@ const ProfileScreen = ({ navigation }) => {
   const updateSinglePost = (post, react) => {
 
     try {
-        setRefresh(true)
-        
-        const updatedData = updatePostView(post, react, userPosts1.current, uuid);
-        userPosts1.current = [];
-        userPosts1.current = updatedData;
+      setRefresh(true)
 
-        setRefresh(false)
+      const updatedData = updatePostView(post, react, userPosts1.current, uuid);
+      userPosts1.current = [];
+      userPosts1.current = updatedData;
+
+      setRefresh(false)
     } catch (e) {
-        console.log(e)
+      console.log(e)
     }
-}
+  }
 
 
   const getPostDetails = (item) => {
@@ -160,31 +154,72 @@ const ProfileScreen = ({ navigation }) => {
     navigation.navigate('AddPost', { postAdd: getUserPosts })
   }
 
+  const showModal = async (userId, postId) => {
+    const uuid = await AsyncStorage.getItem('uuid');
+    if (userId == uuid) {
+      setModalVisible(true);
+      currentPostId.current = postId;
+    }
+  }
+
+  const deletePost = async () => {
+    try {
+      await posts.doc(currentPostId.current).delete();
+      const postRelatedCommentsSnapshot = await comments.where('postId', '==', currentPostId.current).get();
+      postRelatedCommentsSnapshot.forEach(doc => {
+        doc.ref.delete();
+      })
+      getUserPosts();
+      setModalVisible(false);
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  const listHeader = () => (
+    <View style={styles.profilePictureContainer}>
+      <TouchableOpacity onPress={() => { _pickImage() }}>
+        {
+          imageColors.includes(userInfo.photoURL) ?
+            <View style={{ ...styles.profilePicture, backgroundColor: userInfo.photoURL, justifyContent: 'center', alignItems: 'center' }}>
+              <Text style={{ color: Colors.textPrimary, fontSize: 38 }}>{userInfo.userName[0].toUpperCase()}</Text>
+            </View>
+            :
+            <Image source={{ uri: userInfo.photoURL ? userInfo.photoURL : 'NoPhoto' }} style={styles.profilePicture} />
+
+        }
+      </TouchableOpacity>
+      <Text style={styles.userName}>
+        {userInfo.userName}
+      </Text>
+    </View>
+  )
+
   return (
     <View style={styles.screen}>
-      <View style={styles.profilePictureContainer}>
-        <TouchableOpacity onPress={() => { _pickImage() }}>
-          {
-            imageColors.includes(userInfo.photoURL) ?
-              <View style={{ ...styles.profilePicture, backgroundColor: userInfo.photoURL, justifyContent: 'center', alignItems: 'center' }}>
-                <Text style={{ color: Colors.textPrimary, fontSize: 38 }}>{userInfo.userName[0].toUpperCase()}</Text>
-              </View>
-              :
-              <Image source={{ uri: userInfo.photoURL ? userInfo.photoURL : 'NoPhoto' }} style={styles.profilePicture} />
+      {/* Modal Start */}
+      {
+        <Modal transparent={true} animationType="slide" visible={modalVisible}>
+          <TouchableOpacity style={{ height: '100%', backgroundColor: 'rgba(0,0,0,0.5)' }} activeOpacity={1} onPressOut={() => { setModalVisible(false) }}>
+            <View style={styles.popUp}>
+              <TouchableOpacity style={styles.removePostButton} onPress={deletePost}>
+                <Icon name="delete" type="materialicons" width={20} color={Colors.textPrimary} />
+                <Text style={styles.popUpRemoveText}>Delete</Text>
+              </TouchableOpacity>
+            </View>
+          </TouchableOpacity>
+        </Modal>
+      }
+      {/* Modal End */}
 
-          }
-        </TouchableOpacity>
-        <Text style={styles.userName}>
-          {userInfo.userName}
-        </Text>
-      </View>
       <View>
       </View>
       <View style={{ flex: 1 }}>
         <FlatList
           data={userPosts1.current}
+          ListHeaderComponent={listHeader}
           renderItem={({ item }) => (
-            <PostCard photoURL={item.photoURL ? item.photoURL : 'NoPhoto'} uuid={uuid} postId={item.postId} count={item.count} reactUserId={item.reactUserId} author={item.userName} content={item.content} date={item.createdAt} postDetails={getPostDetails} updateSinglePost={updateSinglePost} post={item} />
+            <PostCard photoURL={item.photoURL ? item.photoURL : 'NoPhoto'} uuid={uuid} postId={item.postId} count={item.count} reactUserId={item.reactUserId} author={item.userName} content={item.content} date={item.createdAt} postDetails={getPostDetails} updateSinglePost={updateSinglePost} post={item} showModal={showModal} />
           )}
           keyExtractor={item => item.postId}
           refreshing={refresh}
@@ -242,6 +277,30 @@ const styles = StyleSheet.create({
   logOutButtonText: {
     color: Colors.textPrimary,
     fontWeight: '700'
+  },
+  popUp: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    paddingHorizontal: 10,
+    paddingTop: 20,
+    paddingBottom: 100,
+    backgroundColor: Colors.primary,
+    // width: '100%',
+    zIndex: 999,
+    borderTopLeftRadius: 15,
+    borderTopRightRadius: 15
+  },
+  removePostButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    zIndex: 999999
+  },
+  popUpRemoveText: {
+    color: Colors.textPrimary,
+    fontSize: 16,
+    marginLeft: 10
   }
 })
 

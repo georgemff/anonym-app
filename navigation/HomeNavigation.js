@@ -1,12 +1,11 @@
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
 import DrawerNavigation from './DrawerNavigation';
 import { createStackNavigator } from '@react-navigation/stack';
 import PostDetails from '../screens/PostDetails';
 import AddPost from '../screens/AddPost';
 import { Colors } from '../colors/Colors';
-import { Icon } from 'react-native-elements';
 import BackButton from '../components/backButton';
+import CreateCommunity from '../screens/CreateCommunity';
 const Home = createStackNavigator();
 
 
@@ -25,16 +24,27 @@ export default function HomeNavigation() {
                 )
             }} name="PostDetails" component={PostDetails} />
             <Home.Screen
-            options={{
+                options={{
+                    headerStyle: {
+                        backgroundColor: Colors.primary,
+                    },
+                    title: 'Create Post',
+                    headerTintColor: Colors.textPrimary,
+                    headerLeft: () => (
+                        <BackButton />
+                    )
+                }} name="AddPost" component={AddPost} />
+            <Home.Screen options={{
                 headerStyle: {
                     backgroundColor: Colors.primary,
                 },
-                title: 'Create Post',
+                title: 'Create Community',
                 headerTintColor: Colors.textPrimary,
                 headerLeft: () => (
                     <BackButton />
                 )
-            }} name="AddPost" component={AddPost} />
+            }} name="CreateCommunity" component={CreateCommunity}
+            />
         </Home.Navigator>
     );
 }
