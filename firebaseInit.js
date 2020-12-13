@@ -36,3 +36,4 @@ export const notificationTokens = db.collection('notificationTokens');
 export const postReactions = db.collection('postReactions');
 export const commentReactions = db.collection('commentReactions');
 export const notifications = db.collection('notifications');
+export const community = db.collection('community');
