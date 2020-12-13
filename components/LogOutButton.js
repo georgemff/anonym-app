@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React, { useContext } from 'react';
 import { TouchableOpacity, View, Text, StyleSheet } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { Colors } from '../colors/Colors';
@@ -10,7 +10,7 @@ const LogOutButton = props => {
     return (
         <TouchableOpacity onPress={() => { signOut() }}
             style={{ ...styles.addPostButton, ...props.style }}>
-            <Icon name="chevron-left" color={Colors.textPrimary} size={30} width={25}/>
+            <Icon name="chevron-left" color={Colors.textPrimary} size={30} width={25} />
             <Text style={styles.LogOutText}>Log Out</Text>
         </TouchableOpacity>
     )

@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { View, TextInput, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { users } from '../firebaseInit';
-import {getLocation} from '../helpers/Helpers';
+import { getLocation } from '../helpers/Helpers';
 import { Context } from '../Authcontext';
 
 import { Colors } from '../colors/Colors';
@@ -27,7 +27,7 @@ const Register = () => {
         }
         if (password == confirmPassword && password != '') {
             const location = await getLocation();
-            if(typeof location !== 'object') {
+            if (typeof location !== 'object') {
                 setErrMessage(location);
             }
             const status = await signUp({ username, email, city: location?.city, region: location?.region, password, confirmPassword });

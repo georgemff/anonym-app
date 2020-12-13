@@ -2,17 +2,18 @@ import React, { useState } from 'react'
 import { View, Text, TextInput, StyleSheet, AsyncStorage } from 'react-native';
 import { Colors } from '../colors/Colors';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { community } from '../firebaseInit'
+import { community } from '../firebaseInit';
+import { communityPrivacy } from '../helpers/type';
 const CreateCommunity = (props) => {
     const [communityName, setCommunityName] = useState('');
     const [privacy, setPrivacy] = useState(0);
     const [nextStep, setNextStep] = useState(false);
 
-    const goToNextStep = () =>  {
+    const goToNextStep = () => {
         setNextStep(true);
     }
 
-    const goToPrevStep = () =>  {
+    const goToPrevStep = () => {
         setNextStep(false);
     }
 
@@ -26,9 +27,9 @@ const CreateCommunity = (props) => {
             privacy: privacy,
             author: await AsyncStorage.getItem('uuid')
         })
-        .then(() => {
-            props.navigation.navigate('Home');
-        })
+            .then(() => {
+                props.navigation.navigate('Home');
+            })
     }
 
     return (
@@ -54,26 +55,26 @@ const CreateCommunity = (props) => {
                         </View>
                     </View>
                     :
-                    <View style={{alignItems: 'center', justifyContent: 'center'}}>
-                        <Text style={{color: Colors.textPrimary, fontSize: 22, fontWeight: 'bold', marginBottom: 10}}>Choose Privacy</Text>
-                        <View style={{ borderRadius: 7, marginVertical: 10}}>
-                            <TouchableOpacity style={{width: 150, alignItems: 'center', paddingVertical: 15, backgroundColor: Colors.primary, borderRadius: 4}} onPress={() => {choosePrivacy(0)}}>
-                                <Text style={{color: Colors.textPrimary, fontSize: 18, fontWeight: 'bold'}}>Public</Text>
-                            </TouchableOpacity>
-                        </View> 
-                        <View style={{borderRadius: 7, marginVertical: 10}}>
-                            <TouchableOpacity style={{width: 150, alignItems: 'center', paddingVertical: 15, backgroundColor: Colors.primary, borderRadius: 4}} onPress={() => {choosePrivacy(1)}}>
-                                <Text style={{color: Colors.textPrimary, fontSize: 18, fontWeight: 'bold'}}>Private</Text>
+                    <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+                        <Text style={{ color: Colors.textPrimary, fontSize: 22, fontWeight: 'bold', marginBottom: 10 }}>Choose Privacy</Text>
+                        <View style={{ borderRadius: 7, marginVertical: 10 }}>
+                            <TouchableOpacity style={{ width: 150, alignItems: 'center', paddingVertical: 15, backgroundColor: Colors.primary, borderRadius: 4 }} onPress={() => { choosePrivacy(communityPrivacy.PUBLIC) }}>
+                                <Text style={{ color: Colors.textPrimary, fontSize: 18, fontWeight: 'bold' }}>Public</Text>
                             </TouchableOpacity>
                         </View>
-                        <View style={{flex: 1, flexDirection: 'row', alignItems: 'flex-end'}}>
-                            <View style={{...styles.nextButtonContainer, marginTop: 10, marginRight: 10}}>
-                                <TouchableOpacity style={{...styles.nextButton, width: 150, alignItems: 'center'}} disabled={communityName.length === 0} onPress={goToPrevStep}>
+                        <View style={{ borderRadius: 7, marginVertical: 10 }}>
+                            <TouchableOpacity style={{ width: 150, alignItems: 'center', paddingVertical: 15, backgroundColor: Colors.primary, borderRadius: 4 }} onPress={() => { choosePrivacy(communityPrivacy.PRIVATE) }}>
+                                <Text style={{ color: Colors.textPrimary, fontSize: 18, fontWeight: 'bold' }}>Private</Text>
+                            </TouchableOpacity>
+                        </View>
+                        <View style={{ flex: 1, flexDirection: 'row', alignItems: 'flex-end' }}>
+                            <View style={{ ...styles.nextButtonContainer, marginTop: 10, marginRight: 10 }}>
+                                <TouchableOpacity style={{ ...styles.nextButton, width: 150, alignItems: 'center' }} disabled={communityName.length === 0} onPress={goToPrevStep}>
                                     <Text style={styles.next}>Back</Text>
                                 </TouchableOpacity>
                             </View>
-                            <View style={{...styles.nextButtonContainer, marginTop: 10}}>
-                                <TouchableOpacity style={{...styles.nextButton, width: 150, alignItems: 'center'}} onPress={registerCommunity}>
+                            <View style={{ ...styles.nextButtonContainer, marginTop: 10 }}>
+                                <TouchableOpacity style={{ ...styles.nextButton, width: 150, alignItems: 'center' }} onPress={registerCommunity}>
                                     <Text style={styles.next}>Finish</Text>
                                 </TouchableOpacity>
                             </View>

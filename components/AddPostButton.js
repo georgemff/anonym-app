@@ -1,15 +1,15 @@
 import React from 'react';
-import {TouchableOpacity, StyleSheet} from 'react-native';
-import {Icon} from 'react-native-elements';
-import {Colors} from '../colors/Colors';
+import { TouchableOpacity, StyleSheet } from 'react-native';
+import { Icon } from 'react-native-elements';
+import { Colors } from '../colors/Colors';
 
 const AddPostButton = props => {
 
     return (
         <TouchableOpacity onPress={() => { props.event() }}
-        style={{...styles.addPostButton, ...props.style}}>
-        <Icon name="add" color="#fff" size={30} />
-    </TouchableOpacity>
+            style={{ ...styles.addPostButton, ...props.style }}>
+            <Icon name="add" color="#fff" size={30} />
+        </TouchableOpacity>
     )
 }
 

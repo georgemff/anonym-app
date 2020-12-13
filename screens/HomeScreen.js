@@ -11,7 +11,7 @@ import {
 import PostCard from '../components/postCard';
 import { Colors } from '../colors/Colors';
 import { Icon } from 'react-native-elements';
-import { posts, comments, queryPosts, postReactions } from '../firebaseInit'
+import { posts, comments, queryPosts } from '../firebaseInit'
 import { connect } from 'react-redux';
 import AddPostButton from '../components/AddPostButton';
 import NoData from '../components/NoData';
@@ -105,7 +105,7 @@ const HomeScreen = (props) => {
             {/* Modal Start */}
             {
                 <Modal transparent={true} animationType="slide" visible={modalVisible}>
-                    <TouchableOpacity style={{height: '100%', backgroundColor: 'rgba(0,0,0,0.5)'}} activeOpacity={1} onPressOut={() => {setModalVisible(false)}}>
+                    <TouchableOpacity style={{ height: '100%', backgroundColor: 'rgba(0,0,0,0.5)' }} activeOpacity={1} onPressOut={() => { setModalVisible(false) }}>
                         <View style={styles.popUp}>
                             <TouchableOpacity style={styles.removePostButton} onPress={deletePost}>
                                 <Icon name="delete" type="materialicons" width={20} color={Colors.textPrimary} />

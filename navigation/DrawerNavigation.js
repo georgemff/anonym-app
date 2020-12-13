@@ -1,15 +1,12 @@
 import React from 'react';
-import { View, Text, ScrollView, Button, SafeAreaView } from 'react-native';
-import { createDrawerNavigator, DrawerItem, DrawerItemList, DrawerContentScrollView } from '@react-navigation/drawer'
+import { View, SafeAreaView } from 'react-native';
+import { createDrawerNavigator, DrawerContentScrollView } from '@react-navigation/drawer'
 import { Icon } from 'react-native-elements';
-
 import FeedNavigation from './FeedNavigation';
 import { Colors } from '../colors/Colors';
 import LogOutButton from '../components/LogOutButton'
 import ExpandedButton from '../components/ExpandedButton';
 import CreateCommunityButton from '../components/createCommunityButton';
-import CreateCommunity from '../screens/CreateCommunity';
-import BackButton from '../components/backButton';
 const Drawer = createDrawerNavigator();
 
 
@@ -38,7 +35,7 @@ export default function DrawerNavigation() {
                         (<Icon name="home" size={24} color={Colors.activeTab} />)
                 }}
                 component={FeedNavigation} />
-           
+
         </Drawer.Navigator>
     )
 }

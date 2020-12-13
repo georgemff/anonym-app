@@ -15,7 +15,6 @@ const CommentCard = props => {
                             <View style={{ ...styles.image, backgroundColor: props.photoURL, justifyContent: 'center', alignItems: 'center' }}><Text style={{ fontSize: 22, color: Colors.textPrimary }}>{props.author[0].toUpperCase()}</Text></View>
                             :
                             <Image source={{ uri: props.photoURL }} style={styles.image} />
-
                     }
                 </View>
                 <View style={{ backgroundColor: Colors.primary, flex: 1, paddingLeft: 10, paddingVertical: 7, borderRadius: 15 }}>

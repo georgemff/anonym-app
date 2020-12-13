@@ -1,8 +1,8 @@
-import React, {useEffect, useState} from 'react';
-import { View, Text, StyleSheet, FlatList, AsyncStorage } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, StyleSheet, FlatList, AsyncStorage } from 'react-native';
 import { Colors } from '../colors/Colors';
 import NotificationCard from '../components/NotificationCard';
-import {notifications, posts, postReactions, users} from '../firebaseInit';
+import { notifications, posts, postReactions, users } from '../firebaseInit';
 import NoData from '../components/NoData';
 const Notifications = props => {
     const [notificationsQuery, setNotificationsQuery] = useState([]);
@@ -11,29 +11,29 @@ const Notifications = props => {
     useEffect(() => {
         getNotifications();
         subscribeSnapshot();
-        
+
     }, [])
 
     const subscribeSnapshot = async () => {
         const uuid = await AsyncStorage.getItem('uuid');
         let i = 0;
         notifications.where('to', '==', uuid)
-        .onSnapshot(() => {
-            getNotifications();
-        })
+            .onSnapshot(() => {
+                getNotifications();
+            })
 
     }
 
     const getNotifications = async (snapshot = undefined) => {
         setRefresh(true)
         let notificationsSnapshot;
-        if(snapshot) {
+        if (snapshot) {
             notificationsSnapshot = snapshot;
         } else {
             const uuid = await AsyncStorage.getItem('uuid')
             notificationsSnapshot = await notifications.where('to', '==', uuid).get();
         }
-       
+
         const notArray = [];
         notificationsSnapshot.forEach((doc) => {
             let obj = doc.data();

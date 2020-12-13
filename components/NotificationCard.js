@@ -1,10 +1,10 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Colors, imageColors } from '../colors/Colors';
 
 const NotificationCard = (props) => {
 
-    
+
 
     const goToDetails = () => {
         props.postDetails(props.notification);
@@ -23,16 +23,16 @@ const NotificationCard = (props) => {
                 }
             </View>
             <View style={{ paddingLeft: 7, justifyContent: 'center' }}>
-                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <Text style={{ color: Colors.textPrimary, fontSize: 18 }}>
                         {props.notification.body[0].toUpperCase() + props.notification.body.slice(1)}
                         <Text style={{ opacity: 0.1, color: 'rgba(215, 218, 220, 0.4)', fontSize: 17 }}> commented on your post</Text>
                     </Text>
                     {
                         props.notification.seen === 0 &&
-                    <View style={{backgroundColor: Colors.activeTab, width: 15, height: 15, marginLeft: '15%', borderRadius: 8}}>
-                        
-                    </View>
+                        <View style={{ backgroundColor: Colors.activeTab, width: 15, height: 15, marginLeft: '15%', borderRadius: 8 }}>
+
+                        </View>
 
                     }
                 </View>

@@ -1,8 +1,8 @@
 import React from 'react';
-import { View, Text, Button, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
 import SignIn from '../components/SignIn';
-import {Colors} from '../colors/Colors';
+import { Colors } from '../colors/Colors';
 
 const LoginSreen = ({ navigation }) => {
     return (
@@ -15,7 +15,7 @@ const LoginSreen = ({ navigation }) => {
                 <TouchableOpacity style={styles.registerButton} onPress={() => navigation.navigate('Register')}>
                     <Text style={styles.registerText}>Register Now >>></Text>
                 </TouchableOpacity>
-            
+
             </View>
         </View>
     )

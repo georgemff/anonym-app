@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
 import Register from '../components/Register';
 
-import {Colors} from '../colors/Colors';
+import { Colors } from '../colors/Colors';
 
 const RegisterScreen = ({ navigation }) => {
     return (
@@ -13,7 +13,7 @@ const RegisterScreen = ({ navigation }) => {
                 <Register />
             </View>
             <View style={styles.backToLoginButton}>
-            <TouchableOpacity style={styles.backToLogin} onPress={() => navigation.navigate('Login')}>
+                <TouchableOpacity style={styles.backToLogin} onPress={() => navigation.navigate('Login')}>
                     <Text style={styles.backToLoginText}> Back to Log In</Text>
                 </TouchableOpacity>
             </View>

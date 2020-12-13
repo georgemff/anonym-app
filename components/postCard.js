@@ -12,9 +12,8 @@ export const images = [
     { id: 'sad', img: "https://firebasestorage.googleapis.com/v0/b/anonymapp-8e15d.appspot.com/o/reactions%2Fsad.png?alt=media&token=b1a09d5f-7ecf-4db2-8b5b-87a73e59fe31" },
     { id: 'wtf', img: "https://firebasestorage.googleapis.com/v0/b/anonymapp-8e15d.appspot.com/o/reactions%2Fwtf.png?alt=media&token=b3ee121d-1a70-450e-ac81-93a47ed11958" }
 ]
-import { postReactions, storageRef } from '../firebaseInit';
+import { postReactions } from '../firebaseInit';
 const PostCard = props => {
-    const [selected, setSelected] = useState('');
     const [open, setOpen] = useState(false);
     const [isOpened, setIsOpened] = useState(false);
     const [popUp, setPopup] = useState(false);
@@ -285,7 +284,7 @@ const PostCard = props => {
         console.log('pressed');
     }
     return (
-        <TouchableOpacity activeOpacity={1} onPressOut={() => {setPopup(false)}}>
+        <TouchableOpacity activeOpacity={1} onPressOut={() => { setPopup(false) }}>
             <View style={styles.container} removeClippedSubviews={true} setClip>
                 <View style={{ ...styles.card, ...props.style }}>
                     <View style={styles.authorImage}>

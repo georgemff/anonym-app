@@ -14,7 +14,6 @@ const PostDetails = ({ route, navigation }) => {
     const [comment, setComment] = useState('');
     const [refresh, setRefresh] = useState(true);
     const [commentsData, setcommentsData] = useState([]);
-    const [updatingComment, setUpdatingComment] = useState(false);
     const uuid = useRef(undefined);
 
 
@@ -101,20 +100,20 @@ const PostDetails = ({ route, navigation }) => {
                     getComments();
                     getPostDetails();
                 })
-            
+
             const unsubscribe = comments
                 .where("postId", "==", post.current.postId)
                 .onSnapshot(() => {
                     getComments();
                 });
-                return () => {
-                    unsubscribe();
-                }
+            return () => {
+                unsubscribe();
+            }
         } catch (e) {
             console.log('useEffect Error: ', e)
         }
 
-        
+
 
     }, []);
 

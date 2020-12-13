@@ -1,20 +1,20 @@
 import React from 'react'
-import {View, Text, StyleSheet} from 'react-native';
-import {Colors} from '../colors/Colors';
+import { View, Text, StyleSheet } from 'react-native';
+import { Colors } from '../colors/Colors';
 const NoData = props => {
     return (
         <View style={styles.NoDataScreen}>
             <Text style={styles.Text}>{props.text}</Text>
         </View>
     )
-} 
+}
 
 const styles = StyleSheet.create({
     NoDataScreen: {
         flex: 1,
         height: '100%',
         justifyContent: 'center',
-        alignItems:'center'
+        alignItems: 'center'
     },
     Text: {
         fontSize: 22,
