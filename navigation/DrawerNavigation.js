@@ -13,7 +13,7 @@ const Drawer = createDrawerNavigator();
 export default function DrawerNavigation() {
     return (
         <Drawer.Navigator
-        initialRouteName="Home"
+            initialRouteName="Home"
             drawerStyle={{ flex: 1, justifyContent: 'center', backgroundColor: Colors.primary }}
             drawerContent={(props) => {
                 return (
