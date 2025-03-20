@@ -1,6 +1,13 @@
-import * as firebase from 'firebase';
-import 'firebase/firestore';
-import 'firebase/functions';
+import { initializeApp } from "firebase/app";
+import {getAuth} from "firebase/auth"
+import { getFirestore, collection} from 'firebase/firestore';
+import {getFunctions, httpsCallable} from 'firebase/functions';
+import { getStorage, ref } from "firebase/storage";
+
+// import auth from '@react-native-firebase/auth';
+// import functions from '@react-native-firebase/functions';
+
+
 // import 'firebase/messaging';
 export const firebaseConfig = {
   apiKey: "AIzaSyABOEFzCH4f4JmnWBuAnOhLVmwNU8pgqbU",
@@ -9,30 +16,30 @@ export const firebaseConfig = {
   projectId: "anonymapp-8e15d",
   storageBucket: "anonymapp-8e15d.appspot.com",
   messagingSenderId: "779623741394",
-  appId: "1:779623741394:web:9235aef12b085361d13a0b",
-  measurementId: "G-9C3Q57V3KR"
+  appId: "1:779623741394:web:6014b7cac0d640c2d13a0b",
+  measurementId: "G-SW5TFB0CCZ"
 };
 
-const initializeFirebase = () => {
-  if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-  }
-}
-initializeFirebase();
+const app = initializeApp(firebaseConfig);
+console.log(app.name)
+const db = getFirestore(app);
+const functions = getFunctions(app);
+const storage = getStorage(app);
 
-const db = firebase.firestore();
+
 
 // export const messagging = firebase.messaging();
-export const auth = firebase.auth();
-export const queryComments = firebase.functions().httpsCallable('queryComments');
-export const queryPosts = firebase.functions().httpsCallable('queryPosts');
-export const queryUserPosts = firebase.functions().httpsCallable('queryUserPosts');
-export const storageRef = firebase.storage().ref();
-export const avatarsRef = storageRef.child('avatars')
-export const posts = db.collection('posts');
-export const users = db.collection('users');
-export const comments = db.collection('comments');
-export const notificationTokens = db.collection('notificationTokens');
-export const postReactions = db.collection('postReactions');
-export const commentReactions = db.collection('commentReactions');
-export const notifications = db.collection('notifications');
+export const auth = getAuth(app);
+
+export const queryComments = httpsCallable(functions, 'queryComments');
+export const queryPosts = httpsCallable(functions, 'queryPosts');
+export const queryUserPosts = httpsCallable(functions, 'queryUserPosts');
+export const storageRef = ref(storage);
+export const avatarsRef = ref(storage, 'avatars');
+export const posts = collection(db, 'posts');
+export const users = collection(db, 'users');
+export const comments = collection(db, 'comments');
+export const notificationTokens = collection(db, 'notificationTokens');
+export const postReactions = collection(db, 'postReactions');
+export const commentReactions = collection(db, 'commentReactions');
+export const notifications = collection(db, 'notifications');

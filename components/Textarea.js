@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
-import { View, TextInput, StyleSheet, Image, AsyncStorage, TouchableOpacity, Text } from 'react-native';
+import { View, TextInput, StyleSheet, Image, TouchableOpacity, Text } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { posts, storageRef } from '../firebaseInit';
 import { Dimensions } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';

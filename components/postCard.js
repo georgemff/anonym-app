@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Image, PanResponder, Animated, AsyncStorage, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Image, PanResponder, Animated, TouchableOpacity } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Icon } from 'react-native-elements';
 import { Colors, imageColors } from '../colors/Colors'
 import { formatDate } from '../helpers/Helpers';

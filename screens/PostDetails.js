@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, StyleSheet, FlatList, TextInput, AsyncStorage, TouchableHighlight, Text, Keyboard } from 'react-native';
-
+import { View, StyleSheet, FlatList, TextInput, TouchableHighlight, Text, Keyboard } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import PostCard from '../components/postCard';
 import CommentCard from '../components/commentCard';
 import { comments, queryComments, postReactions } from '../firebaseInit';
@@ -129,7 +129,6 @@ const PostDetails = ({ route, navigation }) => {
                         <CommentCard photoURL={item.photoURL ? item.photoURL : 'NoPhoto'} authorStyle={styles.commentAuthorStyle} author={item.userName} uuid={uuid.current} reactUserId={item.reactUserId} comment={item} commentId={item.commentId} content={item.comment} date={item.createdAt} />
                     )}
                     keyExtractor={item => item.commentId}
-                    refreshing={refresh}
                     onRefresh={refreshHandler}
                     ListEmptyComponent={() => (<NoData text={'No Comments Yet'} />)}
                     contentContainerStyle={commentsData?.length === 0 && styles.emptyList}

@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
-import { View, Text, StyleSheet, FlatList, AsyncStorage } from 'react-native';
+import { View, Text, StyleSheet, FlatList } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Colors } from '../colors/Colors';
 import NotificationCard from '../components/NotificationCard';
 import {notifications, posts, postReactions, users} from '../firebaseInit';

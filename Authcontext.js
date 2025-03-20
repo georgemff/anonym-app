@@ -1,5 +1,5 @@
 import React, { useState, createContext, useMemo, useContext } from 'react';
-import { AsyncStorage, View, Text, StyleSheet } from 'react-native';
+import {View, Text, StyleSheet } from 'react-native';
 import Header from './components/Header';
 import LoginNavigation from './navigation/LoginNavigation';
 import HomeNavigation from './navigation/HomeNavigation';
@@ -8,6 +8,8 @@ import * as Permissions from 'expo-permissions';
 import {Notifications} from 'expo';
 import {imageColors} from './colors/Colors';
 import { auth, users, notificationTokens } from './firebaseInit'
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {signInWithEmailAndPassword} from 'firebase/auth'
 export const Context = createContext();
 
 
@@ -27,7 +29,7 @@ const AuthContext = () => {
     const authContext = useMemo(() => (
         {
             signIn: async data => {
-                return auth.signInWithEmailAndPassword(data.username, data.password)
+                return signInWithEmailAndPassword(auth, data.username, data.password)
                     .then(async (r) => {
                         try {
                             const token = await auth.currentUser.getIdToken();

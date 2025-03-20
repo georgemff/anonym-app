@@ -5,9 +5,9 @@ import {
     Text,
     TouchableOpacity,
     FlatList,
-    AsyncStorage,
     Modal
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import PostCard from '../components/postCard';
 import { Colors } from '../colors/Colors';
 import { Icon } from 'react-native-elements';
